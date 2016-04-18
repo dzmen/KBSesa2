@@ -1,0 +1,10 @@
+14:27:08 **** Incremental Build of configuration Nios II for project DE2_115_SD_Card_Audio_Player ****
+make all 
+Info: Building ../DE2_115_SD_Card_Audio_Player_bsp/
+C:/altera_lite/15.1/nios2eds/bin/gnu/H-x86_64-mingw32/bin/make --no-print-directory -C ../DE2_115_SD_Card_Audio_Player_bsp/
+makefile:580: Warning: SOPC File C:/Users/Administrator/Desktop/DE2_115_SD_Card_Audio_Player/DE2_115_SOPC.sopcinfo could not be found.
+[BSP build complete]
+[DE2_115_SD_Card_Audio_Player build complete]
+
+14:27:09 Build Finished (took 1s.328ms)
+
