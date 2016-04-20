@@ -142,7 +142,6 @@ ACDS_VERSION := 15.1
 ELF := KBS.elf
 
 # Paths to C, C++, and assembly source files.
-C_SRCS += hello_ucosii.c
 C_SRCS += terasic_fat/FatFileSystem.c
 C_SRCS += terasic_fat/FatInternal.c
 C_SRCS += terasic_lib/AUDIO.c
@@ -157,9 +156,10 @@ C_SRCS += terasic_sdcard/crc7.c
 C_SRCS += terasic_sdcard/sd_hal.c
 C_SRCS += terasic_sdcard/sd_lib.c
 C_SRCS += terasic_sdcard/sd_protocol.c
-C_SRCS += functions.c
+C_SRCS += main.c
 CXX_SRCS :=
 ASM_SRCS :=
+#C_SRCS += functions.c
 
 
 # Path to root of object file tree.
