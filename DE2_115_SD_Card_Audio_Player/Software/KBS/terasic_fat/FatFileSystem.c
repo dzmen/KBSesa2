@@ -74,11 +74,7 @@ FAT_HANDLE Fat_Mount(FAT_DEVICE FatDevice, DEVICE_HANDLE hUsbDisk){
         #ifdef SUPPORT_SD_CARD
         hFat = fatMountSdcard();
         #endif //SUPPORT_SD_CARD
-    }else if (FatDevice == FAT_USB_DISK){
-        #ifdef SUPPORT_USB_DISK
-        hFat = fatMountUsbDisk(hUsbDisk);
-        #endif
-    }  
+    }
     return hFat;      
         
 }

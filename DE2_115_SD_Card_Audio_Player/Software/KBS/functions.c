@@ -103,10 +103,10 @@ int build_wave_play_list(FAT_HANDLE hFat){
                     pData16++;
                 }
                 szWaveFilename[nPos] = 0;
-                //printf("\n--Music Name:%s --\n",szWaveFilename);
+                //printf("\n-- 1 Music Name:%s --\n",szWaveFilename);
             }else{
                 strcpy(szWaveFilename,FileContext.szName);
-                //printf("\n--Music Name:%s --\n",FileContext.szName);
+                //printf("\n-- 2 Music Name:%s --\n",FileContext.szName);
             }
 
             length= strlen(szWaveFilename);
@@ -134,11 +134,16 @@ int build_wave_play_list(FAT_HANDLE hFat){
                   printf("wave file read fail.\n");
                   continue;
             }
+
             Fat_FileClose(hFile);
 
                         // check wave format
             sample_rate =  Wave_GetSampleRate(szHeader, sizeof(szHeader));
-            if (WAVE_IsWaveFile(szHeader, sizeof(szHeader)) &&
+            printf("%i is de channel.\n", Wave_GetChannelNum(szHeader, sizeof(szHeader)));
+            printf("%i is de sample rate.\n", sample_rate);
+            printf("%i is de sample bit num.\n", Wave_GetSampleBitNum(szHeader, sizeof(szHeader)));
+
+            if (
                 is_supporrted_sample_rate(sample_rate) &&
                 Wave_GetChannelNum(szHeader, sizeof(szHeader))==2 &&
                 Wave_GetSampleBitNum(szHeader, sizeof(szHeader))==16){
@@ -148,9 +153,6 @@ int build_wave_play_list(FAT_HANDLE hFat){
         }
     } // while
     gWavePlayList.nFileNum = count;
-
-    //Fat_FileBrowseEnd(&hFileBrowse);
-
     return count;
 }
 
@@ -158,22 +160,18 @@ int build_wave_play_list(FAT_HANDLE hFat){
 //// Function for wave playing /////////////////////////////////
 /////////////////////////////////////////////////////////////////
 
-void waveplay_stop(void);
-
 bool waveplay_start(char *pFilename){
     bool bSuccess;
-    int nSize;
-    //waveplay_stop();
-
-  //  strcpyn(gWavePlay.szFilename, pFilename, FILENAME_LEN-1);
+    //Zet de bestandsnaam in de struc
     strcpy(gWavePlay.szFilename, pFilename);
+
+
+    //Kijk of je het bestand kan openen
     gWavePlay.hFile = Fat_FileOpen(hFat, pFilename);
     if (!gWavePlay.hFile)
         printf("wave file open fail.\n");
 
-    //gWavePlay.szBuf = Fat_FileSize(gWavePlay.hFile);
-    nSize = Fat_FileSize(gWavePlay.hFile);
-
+    //
     if (gWavePlay.hFile){
         bSuccess = Fat_FileRead(gWavePlay.hFile, gWavePlay.szBuf, WAVE_BUF_SIZE);
         if (!bSuccess)
@@ -183,7 +181,7 @@ bool waveplay_start(char *pFilename){
                         // check wave format
     if (bSuccess){
             int sample_rate =  Wave_GetSampleRate(gWavePlay.szBuf, WAVE_BUF_SIZE);
-            if (WAVE_IsWaveFile(gWavePlay.szBuf, WAVE_BUF_SIZE) &&
+            if (
                 is_supporrted_sample_rate(sample_rate) &&
                 Wave_GetChannelNum(gWavePlay.szBuf, WAVE_BUF_SIZE)==2 &&
                 Wave_GetSampleBitNum(gWavePlay.szBuf, WAVE_BUF_SIZE)==16){
@@ -226,19 +224,16 @@ bool waveplay_execute(bool *bEOF){
     bool bSuccess = TRUE;
     bool bDataReady = FALSE;
 
-
-    // end of play data !
+    //Controlleer of de WAV file is afgelopen
     if (gWavePlay.uWavePlayPos >= gWavePlay.uWaveMaxPlayPos){
         *bEOF = TRUE;
         return TRUE;
     }
 
-    //
     *bEOF = FALSE;
     while (!bDataReady && bSuccess){
         if (gWavePlay.uWavePlayPos < gWavePlay.uWaveReadPos){
             bDataReady = TRUE;
-            //DEBUG_PRINTF("it is not neccessary to read data from sd-card\r\n");
         }else{
             int read_size = WAVE_BUF_SIZE;
             if (read_size > (gWavePlay.uWaveMaxPlayPos - gWavePlay.uWavePlayPos))
@@ -251,7 +246,7 @@ bool waveplay_execute(bool *bEOF){
         }
     } // while
 
-    //
+    //Speel een short van de WAV file wanneer hij alle data heeft
     if (bDataReady && bSuccess){
         int play_size;
         short *pSample = (short *)(gWavePlay.szBuf + gWavePlay.uWavePlayPos%WAVE_BUF_SIZE);
@@ -259,18 +254,18 @@ bool waveplay_execute(bool *bEOF){
         play_size = gWavePlay.uWaveReadPos - gWavePlay.uWavePlayPos;
         play_size = play_size/4*4;
         while(i < play_size){
-            if(AUDIO_DacFifoNotFull()){ // if audio ready (not full)
+            if(AUDIO_DacFifoNotFull()){ // Als audio ready is (LIB functie)
                 short ch_right, ch_left;
                 ch_left = *pSample++;
                 ch_right = *pSample++;
 
-                AUDIO_DacFifoSetData(ch_left, ch_right); // play wave
+                AUDIO_DacFifoSetData(ch_left, ch_right); // Speel geluid links en rechts
                 i+=4;
             }
-        } // while
+        }
         gWavePlay.uWavePlayPos += play_size;
 
-    } //
+    }
 
     return bSuccess;
 }

@@ -38,12 +38,7 @@
 
 #ifdef SUPPORT_SD_CARD
     #include "..\terasic_sdcard\sd_lib.h"
-#endif //SUPPORT_USB_DISK
-
-#ifdef SUPPORT_USB_DISK
-    #include "..\terasic_usb_isp1761\class\usb_disk\usb_disk.h"
-    #include "..\terasic_usb_isp1761\usb_host\usb_hub.h"
-#endif //SUPPORT_USB_DISK
+#endif
 
 #ifdef DEBUG_FAT
     #define FAT_DEBUG(x)    {DEBUG(("[FAT]")); DEBUG(x);}
@@ -521,9 +516,6 @@ bool fatMount(VOLUME_INFO *pVol){
 
 }
 
-//===================== SUPPORT_SD_CARD =================================================
-#ifdef SUPPORT_SD_CARD
-
 bool SD_ReadBlock512(DISK_HANDLE DiskHandle, alt_u32 PysicalSelector, alt_u8 szBuf[512]){
     return SDLIB_ReadBlock512(PysicalSelector, szBuf);
 }
@@ -571,35 +563,3 @@ FAT_HANDLE fatMountSdcard(void){
 
     return hFat;   
 }
-
-#endif ////===================== SUPPORT_SD_CARD =================================================
-
-
-//===================== SUPPORT_USB_DISK =================================================
-#ifdef SUPPORT_USB_DISK
-
-
-FAT_HANDLE fatMountUsbDisk(DEVICE_HANDLE hUsbDisk){
-    bool bSuccess = FALSE;    
-    FAT_HANDLE hFat;
-    VOLUME_INFO *pVol;
-    
-    hFat = malloc(sizeof(VOLUME_INFO));
-    if (!hFat)
-        return 0;
-        
-    pVol = (VOLUME_INFO *)hFat;
-    pVol->DiskHandle = hUsbDisk;
-    pVol->ReadBlock512 = USBDISK_ReadBlock512; 
-    if (fatMount(pVol)){
-        bSuccess = TRUE;
-    }else{
-        free((void *)hFat);
-        hFat = 0;
-    }
-    
-    
-    return hFat;
-}
-
-#endif ////===================== SUPPORT_USB_DISK =================================================

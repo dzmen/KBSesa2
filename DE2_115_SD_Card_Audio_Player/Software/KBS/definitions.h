@@ -4,22 +4,6 @@
 //===== Terasic includes
 
 #include ".\terasic_lib\terasic_includes.h"
-#include ".\terasic_fat\FatFileSystem.h"
-#include ".\terasic_fat\FatInternal.h"
-#include ".\terasic_lib\WaveLib.h"
-#include ".\terasic_lib\AUDIO.h"
-#include ".\terasic_sdcard\sd_lib.h"
-
-//===== types ========
-
-typedef signed char  alt_8;
-typedef unsigned char  alt_u8;
-typedef signed short alt_16;
-typedef unsigned short alt_u16;
-typedef signed long alt_32;
-typedef unsigned long alt_u32;
-typedef long long alt_64;
-typedef unsigned long long alt_u64;
 
 //===== display config =====
 
