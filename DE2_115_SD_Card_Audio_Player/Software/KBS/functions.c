@@ -1,3 +1,4 @@
+#include "includes.h"
 #include "functions.h"
 #include "definitions.h"
 
@@ -5,6 +6,8 @@
 /////////// Display config & function ///////////////////////////
 /////////////////////////////////////////////////////////////////
 
+//Vernieuwd de tekst op het lcd scherm
+//De tekst is de naam van het audiobestand en het volumeniveau
 void update_status(void){
 #ifdef LCD_DISPLAY
     char szText[64];
@@ -14,12 +17,14 @@ void update_status(void){
 #endif
 }
 
+//Open het lcd scherm
 void lcd_open(void){
 #ifdef LCD_DISPLAY
     LCD_Open();
 #endif
 }
 
+//Plaats een string op het lcd scherm
 void lcd_display(char *pText){
 #ifdef LCD_DISPLAY
     LCD_Clear();
@@ -32,6 +37,8 @@ void lcd_display(char *pText){
 /////////// Routing for detect SD-CARD //////////////////////////
 /////////////////////////////////////////////////////////////////
 
+//Wacht totdat er een sd-kaart wordt ingevoerd
+//Geeft zowel op het lcd scherm als in de console weer dat er een sd-kaart moet worden ingevoerd
 void wait_sdcard_insert(void){
     bool bFirstTime2Detect = TRUE;
     while(!SDLIB_Init()){
@@ -40,7 +47,7 @@ void wait_sdcard_insert(void){
             lcd_display(("\rPlease insert\nSD card!\n"));
             bFirstTime2Detect = FALSE;
         }
-        usleep(100*1000);
+        OSTimeDlyHMSM(0,0,0,100);
     } // while
     printf("Find SD card\r\n");
 
@@ -50,6 +57,7 @@ void wait_sdcard_insert(void){
 /////////// Routing for building wave-file play list ////////////
 /////////////////////////////////////////////////////////////////
 
+//Controleerd of de sample rate van het audio bestand is toegestaan
 bool is_supporrted_sample_rate(int sample_rate){
     bool bSupport = FALSE;
     switch(sample_rate){
@@ -87,37 +95,37 @@ int build_wave_play_list(FAT_HANDLE hFat){
     //
     while (Fat_FileBrowseNext(&hFileBrowse,&FileContext)){
         if (FileContext.bLongFilename){
-                nPos = 0;
-                alt_u16 *pData16;
-                alt_u8 *pData8;
-                pData16 = (alt_u16 *)FileContext.szName;
-                pData8 = FileContext.szName;
-                while(*pData16){
-                    if (*pData8 && *pData8 != ' ')
-                        szWaveFilename[nPos++] = *pData8;
-                    pData8++;
-                    if (*pData8 && *pData8 != ' ')
-                        szWaveFilename[nPos++] = *pData8;
-                    pData8++;
-                    //
-                    pData16++;
-                }
-                szWaveFilename[nPos] = 0;
-                //printf("\n-- 1 Music Name:%s --\n",szWaveFilename);
-            }else{
-                strcpy(szWaveFilename,FileContext.szName);
-                //printf("\n-- 2 Music Name:%s --\n",FileContext.szName);
-            }
+			nPos = 0;
+			alt_u16 *pData16;
+			alt_u8 *pData8;
+			pData16 = (alt_u16 *)FileContext.szName;
+			pData8 = FileContext.szName;
+			while(*pData16){
+				if (*pData8 && *pData8 != ' ')
+					szWaveFilename[nPos++] = *pData8;
+				pData8++;
+				if (*pData8 && *pData8 != ' ')
+					szWaveFilename[nPos++] = *pData8;
+				pData8++;
+				//
+				pData16++;
+			}
+			szWaveFilename[nPos] = 0;
+			//printf("\n-- 1 Music Name:%s --\n",szWaveFilename);
+		}else{
+			strcpy(szWaveFilename,FileContext.szName);
+			//printf("\n-- 2 Music Name:%s --\n",FileContext.szName);
+		}
 
-            length= strlen(szWaveFilename);
-            if(length >= 4){
-               if((szWaveFilename[length-1] =='V' || szWaveFilename[length-1] =='v')
-                &&(szWaveFilename[length-2] == 'A' || szWaveFilename[length-2] =='a')
-                &&(szWaveFilename[length-3] == 'W' || szWaveFilename[length-3] == 'w')
-                &&(szWaveFilename[length-4] == '.')){
-                   bFlag = TRUE;
-                }
-            }
+		length= strlen(szWaveFilename);
+		if(length >= 4){
+		   if((szWaveFilename[length-1] =='V' || szWaveFilename[length-1] =='v')
+			&&(szWaveFilename[length-2] == 'A' || szWaveFilename[length-2] =='a')
+			&&(szWaveFilename[length-3] == 'W' || szWaveFilename[length-3] == 'w')
+			&&(szWaveFilename[length-4] == '.')){
+			   bFlag = TRUE;
+			}
+		}
 
         if (bFlag){
             // parsing wave format
@@ -180,38 +188,38 @@ bool waveplay_start(char *pFilename){
 
                         // check wave format
     if (bSuccess){
-            int sample_rate =  Wave_GetSampleRate(gWavePlay.szBuf, WAVE_BUF_SIZE);
-            if (
-                is_supporrted_sample_rate(sample_rate) &&
-                Wave_GetChannelNum(gWavePlay.szBuf, WAVE_BUF_SIZE)==2 &&
-                Wave_GetSampleBitNum(gWavePlay.szBuf, WAVE_BUF_SIZE)==16){
+		int sample_rate =  Wave_GetSampleRate(gWavePlay.szBuf, WAVE_BUF_SIZE);
+		if (
+			is_supporrted_sample_rate(sample_rate) &&
+			Wave_GetChannelNum(gWavePlay.szBuf, WAVE_BUF_SIZE)==2 &&
+			Wave_GetSampleBitNum(gWavePlay.szBuf, WAVE_BUF_SIZE)==16){
 
-                gWavePlay.uWavePlayPos = Wave_GetWaveOffset(gWavePlay.szBuf, WAVE_BUF_SIZE);
-                gWavePlay.uWaveMaxPlayPos = gWavePlay.uWavePlayPos + Wave_GetDataByteSize(gWavePlay.szBuf, WAVE_BUF_SIZE);
-                gWavePlay.uWaveReadPos = WAVE_BUF_SIZE;
+			gWavePlay.uWavePlayPos = Wave_GetWaveOffset(gWavePlay.szBuf, WAVE_BUF_SIZE);
+			gWavePlay.uWaveMaxPlayPos = gWavePlay.uWavePlayPos + Wave_GetDataByteSize(gWavePlay.szBuf, WAVE_BUF_SIZE);
+			gWavePlay.uWaveReadPos = WAVE_BUF_SIZE;
 
-                // setup sample rate
-                AUDIO_InterfaceActive(FALSE);
-                if (sample_rate == 96000)
-                    AUDIO_SetSampleRate(RATE_ADC96K_DAC96K);
-                else if (sample_rate == 48000)
-                    AUDIO_SetSampleRate(RATE_ADC48K_DAC48K);
-                else if (sample_rate == 44100)
-                    AUDIO_SetSampleRate(RATE_ADC44K1_DAC44K1);
-                else if (sample_rate == 32000)
-                    AUDIO_SetSampleRate(RATE_ADC32K_DAC32K);
-                else if (sample_rate == 8000)
-                    AUDIO_SetSampleRate(RATE_ADC8K_DAC8K);
-                else
-                    printf("unsupported sample rate=%d\n", sample_rate);
-                AUDIO_FifoClear();
-                AUDIO_InterfaceActive(TRUE);
+			// setup sample rate
+			AUDIO_InterfaceActive(FALSE);
+			if (sample_rate == 96000)
+				AUDIO_SetSampleRate(RATE_ADC96K_DAC96K);
+			else if (sample_rate == 48000)
+				AUDIO_SetSampleRate(RATE_ADC48K_DAC48K);
+			else if (sample_rate == 44100)
+				AUDIO_SetSampleRate(RATE_ADC44K1_DAC44K1);
+			else if (sample_rate == 32000)
+				AUDIO_SetSampleRate(RATE_ADC32K_DAC32K);
+			else if (sample_rate == 8000)
+				AUDIO_SetSampleRate(RATE_ADC8K_DAC8K);
+			else
+				printf("unsupported sample rate=%d\n", sample_rate);
+			AUDIO_FifoClear();
+			AUDIO_InterfaceActive(TRUE);
 
 
-                printf("sample rate=%d\n", sample_rate);
-            }else{
-                bSuccess = FALSE;
-            }
+			printf("sample rate=%d\n", sample_rate);
+		}else{
+			bSuccess = FALSE;
+		}
     }
 
     if (!bSuccess)
@@ -268,12 +276,6 @@ bool waveplay_execute(bool *bEOF){
     }
 
     return bSuccess;
-}
-
-void waveplay_stop(void){
-    /*if (gWavePlay.hFile.IsOpened){
-        Fat_FileClose(&gWavePlay.hFile);
-    }*/
 }
 
 /////////////////////////////////////////////////////////////////
