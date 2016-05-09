@@ -39,34 +39,7 @@
 #define CHUNK_DATA 0x61746164   // little-endin "data"
 
 //#pragma pack(push, 1)
-#pragma pack(1)
 
-typedef struct{
-    alt_u32 ID;
-    alt_u32 Size;
-}CHUNK;
-
-typedef struct{
-    alt_u32 ID;
-    alt_u32 Size;
-    alt_u16  AudioFormat;
-    alt_u16 NumChannels;
-    alt_u32 SampleRate;
-    alt_u32 ByteRate;
-    alt_u16 BlockAlign;
-    alt_u16 BitsPerSample;
-}PCM_FORMAT_CHUNK;
-
-typedef struct {
-    alt_u32 ChunkID;
-    alt_u32 ChunkSize;
-    alt_u32 Format;
-}WAVE_HEADER;
-
-//#pragma pack(pop)
-#pragma pack()
-
-int waveGetChunkOffset(char *szWave, const int nSize, const unsigned int ChunkID);
 int waveGetChunkOffset(char *szWave, const int nSize, const unsigned int ChunkID){
         int nNum = 0;
         if (nSize >= sizeof(WAVE_HEADER)){

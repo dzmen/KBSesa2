@@ -63,13 +63,6 @@ bool AUDIO_Init(void){
         
     if (bSuccess)
         bSuccess = aduio_RegWrite(9, 0x0000);  // inactive interface         
-       
-    //usleep(20*1000);    
-    if (bSuccess)
-        bSuccess = aduio_RegWrite(0, 0x0017);  // Left Line In: set left line in volume
-        
-    if (bSuccess)
-        bSuccess = aduio_RegWrite(1, 0x0017);  // Right Line In: set right line in volume
         
     if (bSuccess)
         bSuccess = aduio_RegWrite(2, 0x005B);  // Left Headphone Out: set left line out volume
@@ -112,130 +105,6 @@ bool AUDIO_InterfaceActive(bool bActive){
     return bSuccess;
 }
 
-bool AUDIO_MicBoost(bool bBoost){
-    bool bSuccess;
-    alt_u16 control;
-    control = reg_file[4];
-    if (bBoost)
-        control |= 0x0001;
-    else        
-        control &= 0xFFFE;
-    bSuccess = aduio_RegWrite(4, control);  // Left Line In: set left line in volume
-    return bSuccess;
-}
-
-bool AUDIO_AdcEnableHighPassFilter(bool bEnable){
-    bool bSuccess;
-    alt_u16 control;
-    control = reg_file[5];
-    if (bEnable)
-        control &= 0xFFFE;
-    else        
-        control |= 0x0001;
-    bSuccess = aduio_RegWrite(5, control);  // Left Line In: set left line in volume
-    return bSuccess;    
-}
-
-
-
-bool AUDIO_DacDeemphasisControl(alt_u8 deemphasis_type){
-    bool bSuccess;
-    alt_u16 control;
-    control = reg_file[5];
-    control &= 0xFFF9;
-    switch(deemphasis_type){
-        case DEEMPHASIS_48K: control |= ((0x03) << 1); break;
-        case DEEMPHASIS_44K1: control |= ((0x02) << 1); break;
-        case DEEMPHASIS_32K: control |= ((0x01) << 1); break;
-    }
-    bSuccess = aduio_RegWrite(5, control);  // Left Line In: set left line in volume
-    return bSuccess;       
-}
-
-bool AUDIO_DacEnableZeroCross(bool bEnable){
-    bool bSuccess;
-    alt_u16 control_l, control_r;
-    alt_u16 mask;
-    control_l = reg_file[2];
-    control_r = reg_file[3];
-    mask = 0x01 << 7;
-    if (bEnable){
-        control_l |= mask;
-        control_r |= mask;
-    }else{        
-        control_l &= ~mask;
-        control_r &= ~mask;
-    }        
-    bSuccess = aduio_RegWrite(2, control_l);  // Left Line In: set left line in volume
-    if (bSuccess)
-        bSuccess = aduio_RegWrite(3, control_r);  // Left Line In: set left line in volume
-    return bSuccess;      
-}
-
-bool AUDIO_DacEnableSoftMute(bool bEnable){
-    bool bSuccess;
-    alt_u16 control;
-    alt_u16 mask;
-    control = reg_file[5];
-    mask = 0x01 << 3;
-    if (bEnable)
-        control |= mask;
-    else        
-        control &= ~mask;
-    bSuccess = aduio_RegWrite(5, control);  // Left Line In: set left line in volume
-    return bSuccess;      
-}
-
-bool AUDIO_MicMute(bool bMute){
-    bool bSuccess;
-    alt_u16 control;
-    alt_u16 mask;
-    control = reg_file[4];
-    mask = 0x01 << 1;
-    if (bMute)
-        control |= mask;
-    else        
-        control &= ~mask;
-    bSuccess = aduio_RegWrite(4, control);  // Left Line In: set left line in volume
-    return bSuccess;        
-}
-
-bool AUDIO_LineInMute(bool bMute){
-    bool bSuccess;
-    alt_u16 control_l, control_r;
-    alt_u16 mask;
-    control_l = reg_file[0];
-    control_r = reg_file[1];
-    mask = 0x01 << 7;
-    if (bMute){
-        control_l |= mask;
-        control_r |= mask;
-    }else{        
-        control_l &= ~mask;
-        control_r &= ~mask;
-    }        
-    bSuccess = aduio_RegWrite(0, control_l);  // Left Line In: set left line in volume
-    if (bSuccess)
-        bSuccess = aduio_RegWrite(1, control_r);  // Left Line In: set left line in volume
-    return bSuccess;        
-}
-
-
-
-bool AUDIO_SetInputSource(alt_u8 InputSource){
-    bool bSuccess;
-    alt_u16 control;
-    alt_u16 mask;
-    control = reg_file[4];
-    mask = 0x01 << 2;
-    if (InputSource == SOURCE_MIC)
-        control |= mask;
-    else        
-        control &= ~mask;
-    bSuccess = aduio_RegWrite(4, control);  // Left Line In: set left line in volume
-    return bSuccess;       
-}
-
 // See datasheet page 39
 bool AUDIO_SetSampleRate(alt_u8 SampleRate){
     bool bSuccess;
@@ -259,32 +128,6 @@ bool AUDIO_SetSampleRate(alt_u8 SampleRate){
         
     bSuccess = aduio_RegWrite(8, control);  // Left Line In: set left line in volume
     return bSuccess;      
-}
-
-
-
-
-
-bool AUDIO_SetLineInVol(alt_u16 l_vol, alt_u16 r_vol){
-    bool bSuccess;
-    alt_u16 control;
-    
-    // left
-    control = reg_file[0];
-    control &= 0xFFE0;
-    control += l_vol & 0x1F;
-    bSuccess = aduio_RegWrite(0, control);
-    
-    if (bSuccess){
-        // right
-        control = reg_file[1];
-        control &= 0xFFE0;
-        control += r_vol & 0x1F;
-        bSuccess = aduio_RegWrite(1, control);        
-    }
-    
-    AUDIO_DEBUG(("[AUDIO] set Line-In vol(%d,%d) %s\r\n", l_vol, r_vol, bSuccess?"success":"fail"));        
-    return bSuccess;
 }
 
 bool AUDIO_SetLineOutVol(alt_u16 l_vol, alt_u16 r_vol){

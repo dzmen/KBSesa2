@@ -33,17 +33,10 @@ typedef enum{
 bool AUDIO_Init(void);
 
 // config 
-bool AUDIO_MicBoost(bool bBoost);
-bool AUDIO_SetLineInVol(alt_u16 l_vol, alt_u16 r_vol);
 bool AUDIO_SetLineOutVol(alt_u16 l_vol, alt_u16 r_vol);
 bool AUDIO_AdcEnableHighPassFilter(bool bEnable);
-bool AUDIO_LineInMute(bool bMute);
-bool AUDIO_MicMute(bool bMute);
 bool AUDIO_SetInputSource(alt_u8 InputSource);
 bool AUDIO_SetSampleRate(alt_u8 SampleRate);
-bool AUDIO_DacDeemphasisControl(alt_u8 deemphasis_type);
-bool AUDIO_DacEnableSoftMute(bool bEnable);
-bool AUDIO_DacEnableZeroCross(bool bEnable);
 bool AUDIO_Reset(void);
 bool AUDIO_InterfaceActive(bool bActive);
 bool AUDIO_EnableByPass(bool bEnable);
