@@ -1,7 +1,0 @@
-14:24:47 **** Build of configuration Nios II for project DE2_115_SD_Card_Audio_Player_bsp ****
-make all 
-makefile:580: Warning: SOPC File C:/Users/Administrator/Desktop/DE2_115_SD_Card_Audio_Player/DE2_115_SOPC.sopcinfo could not be found.
-[BSP build complete]
-
-14:24:48 Build Finished (took 835ms)
-

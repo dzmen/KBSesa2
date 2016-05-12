@@ -1,0 +1,72 @@
+# # File gsaved with Nlview version 6.3.8  2013-12-19 bk=1.2992 VDI=34 GEI=35
+# 
+preplace inst DE2_115_SOPC.cfi_flash.slave_translator -pg 1
+preplace inst DE2_115_SOPC.cfi_flash.clk -pg 1
+preplace inst DE2_115_SOPC.tri_state_bridge_flash_pinSharer_0.clock -pg 1
+preplace inst DE2_115_SOPC.sram -pg 1 -lvl 5 -y 1330
+preplace inst DE2_115_SOPC.cpu.clock_bridge -pg 1
+preplace inst DE2_115_SOPC.cfi_flash.tda -pg 1
+preplace inst DE2_115_SOPC.cfi_flash.reset -pg 1
+preplace inst DE2_115_SOPC.altpll_0 -pg 1 -lvl 3 -y 930
+preplace inst DE2_115_SOPC.tri_state_bridge_flash_pinSharer_0.reset -pg 1
+preplace inst DE2_115_SOPC.tri_state_bridge_flash_pinSharer_0 -pg 1 -lvl 4 -y 960
+preplace inst DE2_115_SOPC.led -pg 1 -lvl 5 -y 130
+preplace inst DE2_115_SOPC.altpll_audio -pg 1 -lvl 3 -y 470
+preplace inst DE2_115_SOPC.alt_vip_vfr_0 -pg 1 -lvl 1 -y 410
+preplace inst DE2_115_SOPC.AUDIO -pg 1 -lvl 4 -y 630
+preplace inst DE2_115_SOPC.timer -pg 1 -lvl 5 -y 410
+preplace inst DE2_115_SOPC.sw -pg 1 -lvl 5 -y 790
+preplace inst DE2_115_SOPC.epcs_flash_controller -pg 1 -lvl 5 -y 990
+preplace inst DE2_115_SOPC.cpu.cpu -pg 1
+preplace inst DE2_115_SOPC.cpu.reset_bridge -pg 1
+preplace inst DE2_115_SOPC.clock_crossing_io -pg 1 -lvl 4 -y 810
+preplace inst DE2_115_SOPC.tri_state_bridge_flash_pinSharer_0.pin_sharer -pg 1
+preplace inst DE2_115_SOPC.lcd_touch_int -pg 1 -lvl 5 -y 1210
+preplace inst DE2_115_SOPC.alt_vip_itc_0 -pg 1 -lvl 5 -y 310
+preplace inst DE2_115_SOPC -pg 1 -lvl 1 -y 40 -regy -20
+preplace inst DE2_115_SOPC.cpu -pg 1 -lvl 2 -y 420
+preplace inst DE2_115_SOPC.cfi_flash -pg 1 -lvl 3 -y 780
+preplace inst DE2_115_SOPC.lcd -pg 1 -lvl 5 -y 30
+preplace inst DE2_115_SOPC.key -pg 1 -lvl 5 -y 530
+preplace inst DE2_115_SOPC.i2c_opencores_0 -pg 1 -lvl 5 -y 650
+preplace inst DE2_115_SOPC.cfi_flash.tdt -pg 1
+preplace inst DE2_115_SOPC.tri_state_bridge_flash_bridge_0 -pg 1 -lvl 5 -y 890
+preplace inst DE2_115_SOPC.sdram -pg 1 -lvl 5 -y 1430
+preplace inst DE2_115_SOPC.clk_50 -pg 1 -lvl 2 -y 790
+preplace inst DE2_115_SOPC.tri_state_bridge_flash_pinSharer_0.arbiter -pg 1
+preplace inst DE2_115_SOPC.sysid -pg 1 -lvl 5 -y 230
+preplace inst DE2_115_SOPC.jtag_uart -pg 1 -lvl 5 -y 1110
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)clk_50.clk_in_reset,(SLAVE)DE2_115_SOPC.clk_50_clk_in_reset) 1 0 2 NJ 840 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)DE2_115_SOPC.altpll_audio_locked_conduit,(SLAVE)altpll_audio.locked_conduit) 1 0 3 NJ 580 NJ 580 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)sw.external_connection,(SLAVE)DE2_115_SOPC.sw_external_connection) 1 0 5 NJ 720 NJ 720 NJ 720 NJ 800 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)i2c_opencores_0.export,(SLAVE)DE2_115_SOPC.i2c_opencores_0_export) 1 0 5 NJ 700 NJ 700 NJ 700 NJ 740 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)altpll_0.areset_conduit,(SLAVE)DE2_115_SOPC.altpll_0_areset_conduit) 1 0 3 NJ 900 NJ 860 NJ
+preplace netloc INTERCONNECT<net_container>DE2_115_SOPC</net_container>(SLAVE)lcd.reset,(SLAVE)sw.reset,(SLAVE)clock_crossing_io.m0_reset,(SLAVE)altpll_0.inclk_interface_reset,(SLAVE)tri_state_bridge_flash_pinSharer_0.reset,(SLAVE)timer.reset,(SLAVE)sysid.reset,(SLAVE)altpll_audio.inclk_interface_reset,(SLAVE)AUDIO.clock_sink_reset,(SLAVE)alt_vip_vfr_0.clock_master_reset,(SLAVE)epcs_flash_controller.reset,(MASTER)cpu.debug_reset_request,(SLAVE)sdram.reset,(SLAVE)key.reset,(MASTER)clk_50.clk_reset,(SLAVE)lcd_touch_int.reset,(SLAVE)alt_vip_vfr_0.clock_reset_reset,(SLAVE)led.reset,(SLAVE)sram.clock_reset_reset,(SLAVE)clock_crossing_io.s0_reset,(SLAVE)cfi_flash.reset,(SLAVE)i2c_opencores_0.clock_reset,(SLAVE)alt_vip_itc_0.is_clk_rst_reset,(SLAVE)jtag_uart.reset,(SLAVE)cpu.reset,(SLAVE)tri_state_bridge_flash_bridge_0.reset) 1 0 5 250 320 590 380 1090 1080 1500 1140 1780
+preplace netloc FAN_OUT<net_container>DE2_115_SOPC</net_container>(SLAVE)clock_crossing_io.s0_clk,(SLAVE)tri_state_bridge_flash_pinSharer_0.clk,(SLAVE)alt_vip_itc_0.is_clk_rst,(MASTER)altpll_0.c0,(SLAVE)sdram.clk,(SLAVE)sram.clock_reset,(SLAVE)alt_vip_vfr_0.clock_reset,(SLAVE)cpu.clk,(SLAVE)jtag_uart.clk,(SLAVE)epcs_flash_controller.clk,(SLAVE)cfi_flash.clk,(SLAVE)tri_state_bridge_flash_bridge_0.clk,(SLAVE)alt_vip_vfr_0.clock_master) 1 0 5 270 560 630 740 1110 740 1440 1060 1800
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)DE2_115_SOPC.key_external_connection,(SLAVE)key.external_connection) 1 0 5 NJ 360 NJ 360 NJ 360 NJ 540 NJ
+preplace netloc POINT_TO_POINT<net_container>DE2_115_SOPC</net_container>(MASTER)cfi_flash.tcm,(SLAVE)tri_state_bridge_flash_pinSharer_0.tcs0) 1 3 1 1400
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)tri_state_bridge_flash_bridge_0.out,(SLAVE)DE2_115_SOPC.tri_state_bridge_flash_bridge_0_out) 1 0 5 NJ 880 NJ 920 NJ 920 NJ 1100 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)DE2_115_SOPC.lcd_external,(SLAVE)lcd.external) 1 0 5 NJ 80 NJ 80 NJ 80 NJ 80 NJ
+preplace netloc POINT_TO_POINT<net_container>DE2_115_SOPC</net_container>(SLAVE)alt_vip_itc_0.din,(MASTER)alt_vip_vfr_0.avalon_streaming_source) 1 1 4 NJ 620 NJ 620 NJ 620 1720
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)DE2_115_SOPC.sram_conduit_end,(SLAVE)sram.conduit_end) 1 0 5 NJ 1400 NJ 1400 NJ 1400 NJ 1400 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)DE2_115_SOPC.sdram_wire,(SLAVE)sdram.wire) 1 0 5 NJ 1500 NJ 1500 NJ 1500 NJ 1500 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)clk_50.clk_in,(SLAVE)DE2_115_SOPC.clk_50_clk_in) 1 0 2 NJ 800 NJ
+preplace netloc FAN_OUT<net_container>DE2_115_SOPC</net_container>(SLAVE)sysid.control_slave,(SLAVE)lcd.control_slave,(SLAVE)sw.s1,(SLAVE)timer.s1,(SLAVE)led.s1,(MASTER)clock_crossing_io.m0,(SLAVE)key.s1) 1 4 1 1760
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)epcs_flash_controller.external,(SLAVE)DE2_115_SOPC.epcs_flash_controller_external) 1 0 5 NJ 1120 NJ 1120 NJ 1120 NJ 1120 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)altpll_0.locked_conduit,(SLAVE)DE2_115_SOPC.altpll_0_locked_conduit) 1 0 3 NJ 920 NJ 880 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)DE2_115_SOPC.alt_vip_itc_0_clocked_video,(SLAVE)alt_vip_itc_0.clocked_video) 1 0 5 NJ 280 NJ 320 NJ 320 NJ 320 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)lcd_touch_int.external_connection,(SLAVE)DE2_115_SOPC.lcd_touch_int_external_connection) 1 0 5 NJ 1240 NJ 1240 NJ 1240 NJ 1240 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)DE2_115_SOPC.altpll_0_phasedone_conduit,(SLAVE)altpll_0.phasedone_conduit) 1 0 3 NJ 940 NJ 900 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)DE2_115_SOPC.led_external_connection,(SLAVE)led.external_connection) 1 0 5 NJ 160 NJ 160 NJ 160 NJ 160 NJ
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(MASTER)altpll_0.c1,(MASTER)DE2_115_SOPC.altpll_0_c1) 1 3 3 NJ 520 NJ 520 NJ
+preplace netloc FAN_OUT<net_container>DE2_115_SOPC</net_container>(SLAVE)key.clk,(SLAVE)clock_crossing_io.m0_clk,(SLAVE)sysid.clk,(SLAVE)timer.clk,(SLAVE)lcd.clk,(SLAVE)led.clk,(SLAVE)sw.clk,(MASTER)altpll_0.c2) 1 3 2 1460 760 1880
+preplace netloc POINT_TO_POINT<net_container>DE2_115_SOPC</net_container>(SLAVE)AUDIO.clock_sink,(MASTER)altpll_audio.c0) 1 3 1 1400
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)DE2_115_SOPC.altpll_audio_phasedone_conduit,(SLAVE)altpll_audio.phasedone_conduit) 1 0 3 NJ 600 NJ 600 NJ
+preplace netloc FAN_OUT<net_container>DE2_115_SOPC</net_container>(SLAVE)lcd_touch_int.clk,(SLAVE)i2c_opencores_0.clock,(MASTER)altpll_0.c3) 1 3 2 NJ 1080 1740
+preplace netloc EXPORT<net_container>DE2_115_SOPC</net_container>(SLAVE)AUDIO.conduit_end,(SLAVE)DE2_115_SOPC.audio_conduit_end) 1 0 4 NJ 680 NJ 680 NJ 680 NJ
+preplace netloc POINT_TO_POINT<net_container>DE2_115_SOPC</net_container>(MASTER)tri_state_bridge_flash_pinSharer_0.tcm,(SLAVE)tri_state_bridge_flash_bridge_0.tcs) 1 4 1 1760
+preplace netloc FAN_OUT<net_container>DE2_115_SOPC</net_container>(SLAVE)alt_vip_vfr_0.interrupt_sender,(SLAVE)i2c_opencores_0.interrupt_sender,(MASTER)cpu.irq,(SLAVE)timer.irq,(SLAVE)epcs_flash_controller.irq,(SLAVE)key.irq,(SLAVE)lcd_touch_int.irq,(SLAVE)jtag_uart.irq) 1 0 5 230 300 NJ 340 1050 440 NJ 440 1840
+preplace netloc FAN_OUT<net_container>DE2_115_SOPC</net_container>(SLAVE)altpll_audio.inclk_interface,(SLAVE)altpll_0.inclk_interface,(MASTER)clk_50.clk) 1 2 1 1070
+preplace netloc INTERCONNECT<net_container>DE2_115_SOPC</net_container>(MASTER)cpu.data_master,(SLAVE)altpll_0.pll_slave,(MASTER)cpu.instruction_master,(SLAVE)cpu.debug_mem_slave,(SLAVE)AUDIO.avalon_slave,(SLAVE)sdram.s1,(SLAVE)epcs_flash_controller.epcs_control_port,(SLAVE)clock_crossing_io.s0,(SLAVE)lcd_touch_int.s1,(MASTER)alt_vip_vfr_0.avalon_master,(SLAVE)i2c_opencores_0.avalon_slave_0,(SLAVE)altpll_audio.pll_slave,(SLAVE)sram.avalon_slave,(SLAVE)cfi_flash.uas,(SLAVE)jtag_uart.avalon_jtag_slave,(SLAVE)alt_vip_vfr_0.avalon_slave) 1 0 5 270 340 570 560 1030 640 1520 780 1860
+levelinfo -pg 1 0 200 2210
+levelinfo -hier DE2_115_SOPC 210 300 750 1170 1590 1950 2110

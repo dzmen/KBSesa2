@@ -1,0 +1,14 @@
+Analysis & Synthesis Status : Successful - Thu May 12 12:32:54 2016
+Quartus Prime Version : 15.1.2 Build 193 02/01/2016 SJ Lite Edition
+Revision Name : Painter
+Top-level Entity Name : Painter
+Family : Cyclone IV E
+Total logic elements : 11,155
+    Total combinational functions : 8,176
+    Dedicated logic registers : 6,927
+Total registers : 6927
+Total pins : 437
+Total virtual pins : 0
+Total memory bits : 125,504
+Embedded Multiplier 9-bit elements : 6
+Total PLLs : 3

@@ -1,0 +1,23 @@
+IP Ports Diff Report for DE2_115_SOPC
+Wed May 11 15:16:36 2016
+Quartus Prime Version 15.1.2 Build 193 02/01/2016 SJ Lite Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. IP Information
+
+
+
++--------------------------------------------------------------+
+; IP Information                                               ;
++----------------------+---------------------------------------+
+; IP Variation Name    ; DE2_115_SOPC                          ;
+; Prior Version        ; ACDS_v13.1                            ;
+; New Version          ; ACDS_v15.1                            ;
+; New File             ; DE2_115_SOPC/synthesis/DE2_115_SOPC.v ;
+; Has Port Differences ; No                                    ;
++----------------------+---------------------------------------+
+
+

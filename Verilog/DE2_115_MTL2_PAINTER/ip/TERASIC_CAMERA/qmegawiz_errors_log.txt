@@ -1,0 +1,74 @@
+
+
+D:/svn/tPAD_VIP_CAMERA_NIOS/vip_pll.v
+
+Oct 07 03PM:39:00>: The following design file, which has identical name but a different extension 
+from the specified variation file, already exists in the working directory:
+
+vip_pll.tdf
+
+This may create a conflict of design files and/or lead to undesirable side
+effects.
+
+Is it OK to continue file generation?
+
+D:/svn/tPAD_VIP_CAMERA_NIOS/vip_pll.v
+
+Oct 07 03PM:50:24>: The following design file, which has identical name but a different extension 
+from the specified variation file, already exists in the working directory:
+
+vip_pll.tdf
+
+This may create a conflict of design files and/or lead to undesirable side
+effects.
+
+Is it OK to continue file generation?
+
+D:/svn/tPAD_VIP_CAMERA_NIOS/vip_pll.v
+
+Oct 07 03PM:51:06>: The following design file, which has identical name but a different extension 
+from the specified variation file, already exists in the working directory:
+
+vip_pll.tdf
+
+This may create a conflict of design files and/or lead to undesirable side
+effects.
+
+Is it OK to continue file generation?
+
+D:/svn/tPAD_VIP_CAMERA_NIOS/vip_pll.v
+
+Oct 07 03PM:52:33>: The following design file, which has identical name but a different extension 
+from the specified variation file, already exists in the working directory:
+
+vip_pll.tdf
+
+This may create a conflict of design files and/or lead to undesirable side
+effects.
+
+Is it OK to continue file generation?
+
+D:/svn/tPAD_VIP_CAMERA_NIOS/vip_pll.v
+
+Oct 07 03PM:57:27>: The following design file, which has identical name but a different extension 
+from the specified variation file, already exists in the working directory:
+
+vip_pll.tdf
+
+This may create a conflict of design files and/or lead to undesirable side
+effects.
+
+Is it OK to continue file generation?
+
+D:/svn/tPAD_VIP_CAMERA_NIOS/vip_pll.vhd
+
+Oct 07 04PM:02:00>: The following design files, which have identical names but different extensions 
+from the specified variation file, already exist in the working directory:
+
+vip_pll.tdf
+vip_pll.v
+
+This may create a conflict of design files and/or lead to undesirable side
+effects.
+
+Is it OK to continue file generation?
