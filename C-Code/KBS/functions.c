@@ -32,7 +32,6 @@ void lcd_display(char *pText){
 #endif
 }
 
-
 /////////////////////////////////////////////////////////////////
 /////////// Routing for detect SD-CARD //////////////////////////
 /////////////////////////////////////////////////////////////////
@@ -50,7 +49,7 @@ void wait_sdcard_insert(void){
         OSTimeDlyHMSM(0,0,0,100);
     } // while
     printf("Find SD card\r\n");
-
+    lcd_display(("\rSdcard read\nAwaiting input\n"));
 }
 
 /////////////////////////////////////////////////////////////////
@@ -72,7 +71,8 @@ bool is_supporrted_sample_rate(int sample_rate){
     return bSupport;
 }
 
-
+//Deze functie looped door de inhoud van de sd card heen, controleerd op .wav files en voegd deze toe aan gWavePlay.
+//Als er een fout optreed geef dan FALSE terug
 int build_wave_play_list(FAT_HANDLE hFat){
     int count = 0;
     FAT_BROWSE_HANDLE hFileBrowse;
@@ -85,14 +85,15 @@ int build_wave_play_list(FAT_HANDLE hFat){
     bool bFlag = FALSE;
     int nPos = 0;
     int length=0;
-    //
+
     gWavePlayList.nFileNum = 0;
+    //checken of er bestanden zijn
     if (!Fat_FileBrowseBegin(hFat,&hFileBrowse)){
         printf("browse file fail.\n");
         return 0;
     }
 
-    //
+    //loopen door de verschillende .wav bestanden
     while (Fat_FileBrowseNext(&hFileBrowse,&FileContext)){
         if (FileContext.bLongFilename){
 			nPos = 0;
@@ -116,7 +117,7 @@ int build_wave_play_list(FAT_HANDLE hFat){
 			strcpy(szWaveFilename,FileContext.szName);
 			//printf("\n-- 2 Music Name:%s --\n",FileContext.szName);
 		}
-
+        //checken of de laatste 4 letters van de bestandsnaam overeenkomt met .wav
 		length= strlen(szWaveFilename);
 		if(length >= 4){
 		   if((szWaveFilename[length-1] =='V' || szWaveFilename[length-1] =='v')
@@ -126,7 +127,7 @@ int build_wave_play_list(FAT_HANDLE hFat){
 			   bFlag = TRUE;
 			}
 		}
-
+		//als de bestandsnaam klopt kunnen we gaan lezen
         if (bFlag){
             // parsing wave format
             hFile = Fat_FileOpen(hFat,szWaveFilename);
@@ -145,14 +146,13 @@ int build_wave_play_list(FAT_HANDLE hFat){
 
             Fat_FileClose(hFile);
 
-                        // check wave format
+            // check wave format
             sample_rate =  Wave_GetSampleRate(szHeader, sizeof(szHeader));
-            printf("%i is de channel.\n", Wave_GetChannelNum(szHeader, sizeof(szHeader)));
-            printf("%i is de sample rate.\n", sample_rate);
-            printf("%i is de sample bit num.\n", Wave_GetSampleBitNum(szHeader, sizeof(szHeader)));
-
-            if (
-                is_supporrted_sample_rate(sample_rate) &&
+            //printf("%i is de channel.\n", Wave_GetChannelNum(szHeader, sizeof(szHeader)));
+            //printf("%i is de sample rate.\n", sample_rate);
+            //printf("%i is de sample bit num.\n", Wave_GetSampleBitNum(szHeader, sizeof(szHeader)));
+            //als de sample rate, channelnummer en samplebitsize kloppen voegen we het bestand toe aan de playlist
+            if (is_supporrted_sample_rate(sample_rate) &&
                 Wave_GetChannelNum(szHeader, sizeof(szHeader))==2 &&
                 Wave_GetSampleBitNum(szHeader, sizeof(szHeader))==16){
                     strcpy(gWavePlayList.szFilename[count],szWaveFilename);
@@ -168,37 +168,38 @@ int build_wave_play_list(FAT_HANDLE hFat){
 //// Function for wave playing /////////////////////////////////
 /////////////////////////////////////////////////////////////////
 
+//Controleer het .wav bestand en speel het af
+//Als er een fout optreed geef dan FALSE terug
 bool waveplay_start(char *pFilename){
     bool bSuccess;
-    //Zet de bestandsnaam in de struc
+    //Zet de bestandsnaam in de struc gWavePlay
     strcpy(gWavePlay.szFilename, pFilename);
-
 
     //Kijk of je het bestand kan openen
     gWavePlay.hFile = Fat_FileOpen(hFat, pFilename);
     if (!gWavePlay.hFile)
         printf("wave file open fail.\n");
 
-    //
+    //Lees de .wav file en kijk of het is gelukt
     if (gWavePlay.hFile){
         bSuccess = Fat_FileRead(gWavePlay.hFile, gWavePlay.szBuf, WAVE_BUF_SIZE);
         if (!bSuccess)
             printf("wave file read fail.\n");
     }
 
-                        // check wave format
+    //.wav formaat nogmaals controleren en vervolgens klaarzetten om af te spelen
     if (bSuccess){
 		int sample_rate =  Wave_GetSampleRate(gWavePlay.szBuf, WAVE_BUF_SIZE);
-		if (
-			is_supporrted_sample_rate(sample_rate) &&
+		if (is_supporrted_sample_rate(sample_rate) &&
 			Wave_GetChannelNum(gWavePlay.szBuf, WAVE_BUF_SIZE)==2 &&
 			Wave_GetSampleBitNum(gWavePlay.szBuf, WAVE_BUF_SIZE)==16){
 
+			//magic happens
 			gWavePlay.uWavePlayPos = Wave_GetWaveOffset(gWavePlay.szBuf, WAVE_BUF_SIZE);
 			gWavePlay.uWaveMaxPlayPos = gWavePlay.uWavePlayPos + Wave_GetDataByteSize(gWavePlay.szBuf, WAVE_BUF_SIZE);
 			gWavePlay.uWaveReadPos = WAVE_BUF_SIZE;
 
-			// setup sample rate
+			// sample rate setten
 			AUDIO_InterfaceActive(FALSE);
 			if (sample_rate == 96000)
 				AUDIO_SetSampleRate(RATE_ADC96K_DAC96K);
@@ -214,20 +215,17 @@ bool waveplay_start(char *pFilename){
 				printf("unsupported sample rate=%d\n", sample_rate);
 			AUDIO_FifoClear();
 			AUDIO_InterfaceActive(TRUE);
-
-
 			printf("sample rate=%d\n", sample_rate);
 		}else{
 			bSuccess = FALSE;
 		}
     }
 
-    if (!bSuccess)
-        waveplay_stop();
-
     return bSuccess;
 }
 
+//.wav bestand afspelen
+//Als er een fout optreed geef dan FALSE terug
 bool waveplay_execute(bool *bEOF){
     bool bSuccess = TRUE;
     bool bDataReady = FALSE;
@@ -272,7 +270,6 @@ bool waveplay_execute(bool *bEOF){
             }
         }
         gWavePlay.uWavePlayPos += play_size;
-
     }
 
     return bSuccess;
@@ -281,7 +278,8 @@ bool waveplay_execute(bool *bEOF){
 /////////////////////////////////////////////////////////////////
 /////////// Routing for button handle ///////////////////////////
 /////////////////////////////////////////////////////////////////
-// return true if next-song
+
+//
 void handle_key(){
     static bool bFirsTime2SetupVol = TRUE;
     alt_u8 button;
@@ -311,7 +309,6 @@ void handle_key(){
     IOWR_ALTERA_AVALON_PIO_EDGE_CAP(KEY_BASE, 0); // clear flag
     bVolUp = (button & 0x04)?TRUE:FALSE;
     bVolDown = (button & 0x02)?TRUE:FALSE;
-
 
 
     // adjust volument
