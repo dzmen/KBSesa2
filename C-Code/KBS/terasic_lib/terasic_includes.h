@@ -48,4 +48,8 @@
 #include "AUDIO.h"
 #include "../terasic_sdcard/sd_lib.h"
 
+#include "../graphic_lib/vip_fr.h"
+#include "../graphic_lib/simple_graphics.h"
+#include "multi_touch2.h"
+
 #endif /*TERASIC_INCLUDES_H_*/
