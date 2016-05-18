@@ -5,20 +5,20 @@
  *      Author: Wilco
  */
 
-#ifndef __FUNCTIONS_H__
-#define __FUNCTIONS_H__
+#ifndef __AUDIO_F_H__
+#define __AUDIO_F_H__
 
-#include "definitions.h"
+#include "main.h"
 
 //===== function prototype =====
-void update_status(void);
+void update_status(int songnummer);
 void lcd_open(void);
 void lcd_display(char *pText);
 void wait_sdcard_insert(void);
 bool is_supporrted_sample_rate(int sample_rate);
 int build_wave_play_list(FAT_HANDLE hFat);
-bool waveplay_start(char *pFilename);
-bool waveplay_execute(bool *bEOF);
+bool waveplay_start(int songnummer);
+bool waveplay_execute(bool *bEOF,int songNummer);
 void handle_key();
 bool Fat_Test(FAT_HANDLE hFat, char *pDumpFile);
 
