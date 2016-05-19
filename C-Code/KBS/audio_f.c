@@ -157,6 +157,11 @@ int build_wave_play_list(FAT_HANDLE hFat){
                 Wave_GetSampleBitNum(szHeader, sizeof(szHeader))==16){
                     strcpy(gWavePlayList.szFilename[count],szWaveFilename);
                     strcpy(gWavePlay[count].szFilename,szWaveFilename);
+                    if(!waveplay_start(count)){
+						gWavePlay[count].readOk = FALSE;
+					} else{
+						gWavePlay[count].readOk = TRUE;
+					}
                     count++;
 
             }
@@ -273,6 +278,65 @@ bool waveplay_execute(bool *bEOF,int songnummer){
 
     return bSuccess;
 }
+
+//bool waveplay_execute(){
+////    bool bSuccess = TRUE;
+////    bool bDataReady = FALSE;
+//
+//
+//
+//    //kijken welke files mogen spelen todo nog doen
+//    int songs[] = {0,2};
+//
+//    //controleren of er al een is afgelopen
+//    for (int j = 0; j < sizeof(songs); ++j) {
+//        if (gWavePlay[j].uWavePlayPos >= gWavePlay[j].uWaveMaxPlayPos){
+//            songs[j] = NULL;
+//        }
+//    }
+//
+//    for (int j = 0; j < sizeof(songs); ++j) {
+//        bool bSuccess = TRUE;
+//        bool bDataReady = FALSE;
+//
+//        while (!bDataReady && bSuccess){
+//            if (gWavePlay[j].uWavePlayPos < gWavePlay[j].uWaveReadPos){
+//                bDataReady = TRUE;
+//            }else{
+//                int read_size = WAVE_BUF_SIZE;
+//                if (read_size > (gWavePlay[j].uWaveMaxPlayPos - gWavePlay[j].uWavePlayPos))
+//                    read_size = gWavePlay[j].uWaveMaxPlayPos - gWavePlay[j].uWavePlayPos;
+//                bSuccess = Fat_FileRead(gWavePlay[j].hFile, gWavePlay[j].szBuf, read_size);
+//                if (bSuccess)
+//                    gWavePlay[j].uWaveReadPos += read_size;
+//                else
+//                    printf("[APP]sdcard read fail, read_pos:%ld, read_size:%d, max_play_pos:%ld !\r\n", gWavePlay[j].uWaveReadPos, read_size, gWavePlay[j].uWaveMaxPlayPos);
+//            }
+//        } // while
+//    }
+//
+//    //Speel een short van de WAV file wanneer hij alle data heeft
+//    if (bDataReady && bSuccess){
+//        int play_size;
+//        short *pSample = (short *)(gWavePlay[songnummer].szBuf + gWavePlay[songnummer].uWavePlayPos%WAVE_BUF_SIZE);
+//        int i = 0;
+//        play_size = gWavePlay[songnummer].uWaveReadPos - gWavePlay[songnummer].uWavePlayPos;
+//        play_size = play_size/4*4;
+//        while(i < play_size){
+//            if(AUDIO_DacFifoNotFull()){ // Als audio ready is (LIB functie)
+//                short ch_right, ch_left;
+//                ch_left = *pSample++;
+//                ch_right = *pSample++;
+//
+//                AUDIO_DacFifoSetData(ch_left, ch_right); // Speel geluid links en rechts
+//                i+=4;
+//            }
+//        }
+//        gWavePlay[songnummer].uWavePlayPos += play_size;
+//    }
+//
+//    return bSuccess;
+//}
 
 /////////////////////////////////////////////////////////////////
 /////////// Routing for button handle ///////////////////////////

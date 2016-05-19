@@ -71,7 +71,7 @@ typedef struct{
     alt_u32         uWavePlayPos;
     alt_u32         uWaveMaxPlayPos;
     char szFilename[FILENAME_LEN];
-
+    bool            readOk;
 
 }PLAYWAVE_CONTEXT;
 
