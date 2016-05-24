@@ -13,7 +13,7 @@ OS_STK    TaskPlaySongStack[MAX_SONGS + 1][TASK_STACKSIZE];
 
 /* Task Priorities definitie*/
 #define TaskReadSD_PRIORITY      	4
-#define TaskKeyHandler_PRIORITY     5
+#define TaskKeyHandler_PRIORITY     10
 //#define TaskPlayMusic_PRIORITY      9
 //#define TaskPlaySong_PRIORITY      	10
 

@@ -1,3 +1,6 @@
+#ifndef __AUDIO_F_c__
+#define __AUDIO_F_c__
+
 #include "includes.h"
 #include "audio_f.h"
 #include "main.h"
@@ -204,6 +207,9 @@ bool waveplay_start(int songnummer){
 			gWavePlay[songnummer].uWavePlayPos = Wave_GetWaveOffset(gWavePlay[songnummer].szBuf, WAVE_BUF_SIZE);
 			gWavePlay[songnummer].uWaveMaxPlayPos = gWavePlay[songnummer].uWavePlayPos + Wave_GetDataByteSize(gWavePlay[songnummer].szBuf, WAVE_BUF_SIZE);
 			gWavePlay[songnummer].uWaveReadPos = WAVE_BUF_SIZE;
+			printf("%d - PlayPos\n", gWavePlay[songnummer].uWavePlayPos);
+			printf("%d - MaxPlayPos\n", gWavePlay[songnummer].uWaveMaxPlayPos);
+			printf("%d - ReadPos\n", gWavePlay[songnummer].uWaveReadPos);
 
 			// sample rate setten
 			AUDIO_InterfaceActive(FALSE);
@@ -279,64 +285,74 @@ bool waveplay_execute(bool *bEOF,int songnummer){
     return bSuccess;
 }
 
-//bool waveplay_execute(){
-////    bool bSuccess = TRUE;
-////    bool bDataReady = FALSE;
-//
-//
-//
-//    //kijken welke files mogen spelen todo nog doen
-//    int songs[] = {0,2};
-//
-//    //controleren of er al een is afgelopen
-//    for (int j = 0; j < sizeof(songs); ++j) {
-//        if (gWavePlay[j].uWavePlayPos >= gWavePlay[j].uWaveMaxPlayPos){
-//            songs[j] = NULL;
-//        }
-//    }
-//
-//    for (int j = 0; j < sizeof(songs); ++j) {
-//        bool bSuccess = TRUE;
-//        bool bDataReady = FALSE;
-//
-//        while (!bDataReady && bSuccess){
-//            if (gWavePlay[j].uWavePlayPos < gWavePlay[j].uWaveReadPos){
-//                bDataReady = TRUE;
-//            }else{
-//                int read_size = WAVE_BUF_SIZE;
-//                if (read_size > (gWavePlay[j].uWaveMaxPlayPos - gWavePlay[j].uWavePlayPos))
-//                    read_size = gWavePlay[j].uWaveMaxPlayPos - gWavePlay[j].uWavePlayPos;
-//                bSuccess = Fat_FileRead(gWavePlay[j].hFile, gWavePlay[j].szBuf, read_size);
-//                if (bSuccess)
-//                    gWavePlay[j].uWaveReadPos += read_size;
-//                else
-//                    printf("[APP]sdcard read fail, read_pos:%ld, read_size:%d, max_play_pos:%ld !\r\n", gWavePlay[j].uWaveReadPos, read_size, gWavePlay[j].uWaveMaxPlayPos);
-//            }
-//        } // while
-//    }
-//
-//    //Speel een short van de WAV file wanneer hij alle data heeft
-//    if (bDataReady && bSuccess){
-//        int play_size;
-//        short *pSample = (short *)(gWavePlay[songnummer].szBuf + gWavePlay[songnummer].uWavePlayPos%WAVE_BUF_SIZE);
-//        int i = 0;
-//        play_size = gWavePlay[songnummer].uWaveReadPos - gWavePlay[songnummer].uWavePlayPos;
-//        play_size = play_size/4*4;
-//        while(i < play_size){
-//            if(AUDIO_DacFifoNotFull()){ // Als audio ready is (LIB functie)
-//                short ch_right, ch_left;
-//                ch_left = *pSample++;
-//                ch_right = *pSample++;
-//
-//                AUDIO_DacFifoSetData(ch_left, ch_right); // Speel geluid links en rechts
-//                i+=4;
-//            }
-//        }
-//        gWavePlay[songnummer].uWavePlayPos += play_size;
-//    }
-//
-//    return bSuccess;
-//}
+bool wave_play(bool *songs)
+{
+    //bekijk welke liedjes er afgespeel moeten worden
+    int songNumbersSize = 2;
+    int songNumbers[2] = {0,2};
+
+    int i;
+    for (i = 0; i < songNumbersSize; i++) {
+        bool bSuccess = TRUE;
+        bool bDataReady = FALSE;
+
+        //Controlleer of een van de wav files is afgelopen
+        if (gWavePlay[songNumbers[i]].uWavePlayPos >= gWavePlay[songNumbers[i]].uWaveMaxPlayPos){
+            gWavePlay[songNumbers[i]].uWavePlayPos = Wave_GetWaveOffset(gWavePlay[songNumbers[i]].szBuf, WAVE_BUF_SIZE);
+        }
+
+        while (!bDataReady && bSuccess){
+            if (gWavePlay[songNumbers[i]].uWavePlayPos < gWavePlay[songNumbers[i]].uWaveReadPos){
+                bDataReady = TRUE;
+            }else{
+                int read_size = WAVE_BUF_SIZE;
+                if (read_size > (gWavePlay[songNumbers[songNumbers[i]]].uWaveMaxPlayPos - gWavePlay[songNumbers[i]].uWavePlayPos))
+                    read_size = gWavePlay[songNumbers[i]].uWaveMaxPlayPos - gWavePlay[songNumbers[i]].uWavePlayPos;
+                bSuccess = Fat_FileRead(gWavePlay[songNumbers[i]].hFile, gWavePlay[songNumbers[i]].szBuf, read_size);
+                if (bSuccess)
+                    gWavePlay[songNumbers[i]].uWaveReadPos += read_size;
+                else{
+                    printf("[APP]sdcard read fail, read_pos:%ld, read_size:%d, max_play_pos:%ld !\r\n", gWavePlay[songNumbers[i]].uWaveReadPos, read_size, gWavePlay[songNumbers[i]].uWaveMaxPlayPos);
+                    return FALSE;
+                }
+
+            }
+        } // while
+    }
+
+    //Speel een short van de WAV file wanneer hij alle data heeft
+    //if (bDataReady && bSuccess){
+    	int play_size, play_size2;
+		short *pSample = (short *)(gWavePlay[songNumbers[1]].szBuf + gWavePlay[songNumbers[1]].uWavePlayPos%WAVE_BUF_SIZE);
+		short *pSample2 = (short *)(gWavePlay[songNumbers[0]].szBuf + gWavePlay[songNumbers[0]].uWavePlayPos%WAVE_BUF_SIZE);
+		//short *pSample = pSample1;
+		int j = 0;
+		play_size = gWavePlay[songNumbers[1]].uWaveReadPos - gWavePlay[songNumbers[1]].uWavePlayPos;
+		play_size = play_size/4*4;
+		play_size2 = gWavePlay[songNumbers[0]].uWaveReadPos - gWavePlay[songNumbers[0]].uWavePlayPos;
+		play_size2 = play_size/4*4;
+		while(j < play_size || j < play_size2){
+			if(AUDIO_DacFifoNotFull()){ // Als audio ready is (LIB functie)
+				short ch_right, ch_left;
+				ch_left = *pSample++ + *pSample2++;
+				ch_right = *pSample++ + *pSample2++;
+
+//				AUDIO_DacFifoSetData(ch_left, ch_right); // Speel geluid links en rechts
+//				ch_left = *pSample2++;
+//				ch_right = *pSample2++;
+
+				AUDIO_DacFifoSetData(ch_left, ch_right); // Speel geluid links en rechts
+				j+=4;
+			}
+		}
+		gWavePlay[songNumbers[1]].uWavePlayPos += play_size;
+		gWavePlay[songNumbers[0]].uWavePlayPos += play_size2;
+   // }
+
+    return TRUE;
+
+}
+
 
 /////////////////////////////////////////////////////////////////
 /////////// Routing for button handle ///////////////////////////
@@ -470,3 +486,5 @@ bool Fat_Test(FAT_HANDLE hFat, char *pDumpFile){
 
     return bSuccess;
 }
+
+#endif
