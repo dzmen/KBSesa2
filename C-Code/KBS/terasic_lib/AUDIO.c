@@ -199,7 +199,7 @@ bool aduio_RegWrite(alt_u8 reg_index, alt_u16 data16){
     bSuccess = I2C_Write(I2C_SCL_BASE, I2C_SDA_BASE, I2C_AUDIO_ADDR, control, data);
     if (!bSuccess) 
         AUDIO_DEBUG(("[AUDIO] write reg fail!!!!\r\n"));
-    usleep(50*1000);  // wait audio chip read        
+    //usleep(50*1000);  // wait audio chip read
     return bSuccess;        
 }
 
