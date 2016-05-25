@@ -1,16 +1,10 @@
-/*
- * functions.h
- *
- *  Created on: Apr 20, 2016
- *      Author: Wilco
- */
-
 #ifndef __AUDIO_F_H__
 #define __AUDIO_F_H__
 
-#include "main.h"
+#include "custom_type.h"
+#include ".\terasic_lib\terasic_includes.h"
 
-//===== function prototype =====
+/* Functie prototypes */
 void update_status(int songnummer);
 void lcd_open(void);
 void lcd_display(char *pText);
@@ -18,9 +12,51 @@ void wait_sdcard_insert(void);
 bool is_supporrted_sample_rate(int sample_rate);
 int build_wave_play_list(FAT_HANDLE hFat);
 bool waveplay_start(int songnummer);
-bool waveplay_execute(bool *bEOF,int songNummer);
+bool waveplay_execute(int songnummer);
 void handle_key();
 bool Fat_Test(FAT_HANDLE hFat, char *pDumpFile);
 
-#endif
+/* LCD Display config */
+#define LCD_DISPLAY
+#define SUPPORT_PLAY_MODE
+#define xENABLE_DEBOUNCE
 
+/* Volume config */
+#define HW_MAX_VOL     127
+#define HW_MIN_VOL     47
+#define HW_DEFAULT_VOL  100
+
+alt_u8 volume;
+
+/* Audio structure config */
+
+#define MAX_FILE_NUM    128
+#define FILENAME_LEN    32
+
+typedef struct{
+    int nFileNum;
+    char szFilename[MAX_FILE_NUM][FILENAME_LEN];
+}WAVE_PLAY_LIST;
+
+static WAVE_PLAY_LIST gWavePlayList;
+
+#define WAVE_BUF_SIZE  512  // do not chagne this constant (FIFO: 4*128 byte)
+typedef struct{
+    FAT_FILE_HANDLE hFile;
+    alt_u8          szBuf[WAVE_BUF_SIZE];  // one sector size of sd-card
+    alt_u32         uWavePlayIndex;
+    alt_u32         uWaveReadPos;
+    alt_u32         uWavePlayPos;
+    alt_u32         uWaveMaxPlayPos;
+    char szFilename[FILENAME_LEN];
+    bool            readOk;
+
+}PLAYWAVE_CONTEXT;
+
+#define   MAX_SONGS 28
+static PLAYWAVE_CONTEXT gWavePlay[MAX_SONGS + 1];
+
+/* SD Card config */
+static FAT_HANDLE hFat;
+
+#endif

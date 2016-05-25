@@ -1,4 +1,3 @@
-#include "includes.h"
 #include "audio_f.c"
 #include "main.h"
 
@@ -8,11 +7,10 @@
 int main(void)
 {
 	/* Semafoor init*/
-	SEM_nPlayIndex = OSSemCreate(1);
 	SEM_bSdacrdReady = OSSemCreate(1);
-	SEM_szWaveFile = OSSemCreate(1);
-	SEM_playing = OSSemCreate(0);
+
 	/* APP init */
+	graphic_init();
 	lcd_open();
 	if (!AUDIO_Init()){ //todo hier naar kijken
 		printf("Audio Init fail!\n");
@@ -21,13 +19,12 @@ int main(void)
 	}
 
 	memset(&gWavePlay, 0, sizeof(gWavePlay));
+	memset(&gWavePlay[MAX_SONGS + 1], 0, sizeof(gWavePlay[MAX_SONGS + 1]));
 	volume = HW_DEFAULT_VOL;
 	AUDIO_SetLineOutVol(volume, volume);
 
 	/* Task init*/
-	//OSTaskCreate(TaskPlayMusic, NULL, (void *)&TaskPlayMusicStack[TASK_STACKSIZE-1], TaskPlayMusic_PRIORITY);
 	OSTaskCreate(TaskKeyHandler, NULL, (void *)&TaskKeyHandlerStack[TASK_STACKSIZE-1], TaskKeyHandler_PRIORITY);
-	OSTaskCreate(TaskPlaySong, NULL/*song nummer*/, (void *)&TaskPlaySongStack[songPrio][TASK_STACKSIZE-1], 5); //todo prio nog aanpassen
 
 	OSStart();
 	return 0;
@@ -60,9 +57,6 @@ void TaskReadSD(void* pdata)
 void TaskKeyHandler(void * pdata)
 {
 	INT8U err;
-	alt_u8 play_button;		//variabele die gekoppeld is aan de drukknop voor het afspelen van een bestand
-	bool bPlay;				//variabele die bepaald of TaskPlaySong aangemaakt kan worden
-	bool bPlay2;
 	bool lcdPrint = FALSE; 	//variabele om te kijken of "Awaiting input" al is afgedrukt
 
 	while(1)
@@ -76,165 +70,14 @@ void TaskKeyHandler(void * pdata)
 			lcdPrint = TRUE;
 		}
 
-		play_button = IORD_ALTERA_AVALON_PIO_DATA(KEY_BASE);
-		play_button = IORD_ALTERA_AVALON_PIO_EDGE_CAP(KEY_BASE);
-		IOWR_ALTERA_AVALON_PIO_EDGE_CAP(KEY_BASE, 0);
-		bPlay = (play_button & 0x08)?TRUE:FALSE; //zet bPlay op TRUE als de meest linkse button (0x08) is ingedrukt
-		if(bPlay && (songPrio <= MAX_SONGS) && bSdacrdReady)
-		{
-			err = OSSemPost(SEM_playing);
-			//maak de TaskPlaySong aan die een bestand gaat afspelen
-			//OSTaskCreate(TaskPlaySong, 2/*song nummer*/, (void *)&TaskPlaySongStack[songPrio][TASK_STACKSIZE-1], songPrio);
-			//OSTaskCreate(TaskPlaySong, 0/*song nummer*/, (void *)&TaskPlaySongStack[TASK_STACKSIZE-1], TaskPlaySong_PRIORITY + 1);
-			//songPrio++;
-//			OSTaskCreate(TaskPlaySong, 0/*song nummer*/, (void *)&TaskPlaySongStack[songPrio][TASK_STACKSIZE-1], songPrio);
-//			songPrio++;
-			lcdPrint = FALSE;
-		}
-
-		handle_key(); //overige knoppen nalopen, zoals volume regeling
-		OSTimeDlyHMSM(0,0,0,100);
-	}
-}
-
-//Speel een ingelezen .wav bestand af
-void TaskPlaySong(void * pdata)
-{
-	printf("TaskPlaySong created\n");
-	INT8U err;
-	bool repeat;
-
-	while(1)
-	{
-		OSSemPend(SEM_playing ,0,&err);
-		printf("play song start\n");
-		repeat = TRUE;
-		bool songToPlay = TRUE;
-		while(songToPlay)
-		{
-			if(!wave_play(&songToPlay)){
-				songToPlay = FALSE;
-				printf("afspelen klaar\n");
+		int songNummer = getButtonId(mtc2->x1, mtc2->y1);
+		while(mtc2->TouchNum && bSdacrdReady) {
+			if(!waveplay_execute(songNummer)){
+				printf("stop playing\n");
+				bSdacrdReady = FALSE;
+				lcdPrint = FALSE;
 			}
+			handle_key();
 		}
 	}
 }
-
-//Speel een ingelezen .wav bestand af
-//void TaskPlaySong(void * pdata)
-//{
-//	printf("TaskPlaySong created\n");
-//	INT8U err;
-//	int songNummer = (int) pdata;
-//	bool repeat = TRUE;										//variabele die bepaald of er nog touchinput is
-//
-//	printf("Met taskplaysong: %s \n %s\n",gWavePlayList.szFilename[songNummer], gWavePlay[songNummer].szFilename);
-//
-//	while (repeat){
-//		bool bPlayDone = FALSE; 							//variabele die bepaald of het muziekje is afgelopen
-//		if (gWavePlay[songNummer].readOk/*!waveplay_start(songNummer)*/){					//als het .wav bestand niet kan worden gestart
-////			printf("waveplay_start error\r\n");
-////			lcd_display("Play Error.\n\n");
-////            OSSemPend(SEM_bSdacrdReady ,0,&err);
-////            bSdacrdReady = FALSE;
-////            err = OSSemPost(SEM_bSdacrdReady);
-////            repeat = FALSE;
-////		}else{												//als het .wav bestand wel kan worden gestart
-//			printf("Play Song:%s\r\n", gWavePlayList.szFilename[songNummer]);
-//			update_status(songNummer);						//update het lcd scherm
-//			while(!bPlayDone && bSdacrdReady && repeat){
-//				OSSemPend(SEM_playing ,0,&err);
-//				bool bEndOfFile = FALSE;
-//				if (!waveplay_execute(&bEndOfFile, songNummer)){//bestand afspelen, als hij klaar is wordt bEndOfFile TRUE
-//					printf("waveplay_execute error\r\n");
-//					lcd_display("Play Error.\n\n");
-//					OSSemPend(SEM_bSdacrdReady ,0,&err);
-//					bSdacrdReady = FALSE;
-//					err = OSSemPost(SEM_bSdacrdReady);
-//					repeat = FALSE;
-//				}
-//				if (bSdacrdReady && (bEndOfFile)) bPlayDone = TRUE;
-//				handle_key(); 									//overige knoppen nalopen, zoals volume regeling
-//				if(!repeatMode) repeat = FALSE;
-//
-//				OSSemPost(SEM_playing);
-//				OSTimeDly(1);
-//			}
-//		}else{
-//			repeat = FALSE;
-//		}
-//	}
-//	songPrio--;
-//	printf("TaskPlaySong done\n");
-//	OSTaskDel(OS_PRIO_SELF);
-//}
-
-
-/* Speelt muziek af */
-//void TaskPlayMusic(void* pdata)
-//{
-//	INT8U err;
-//	while (1)
-//	{
-//		OSSemPend(SEM_bSdacrdReady ,0,&err);
-//
-//		while(bSdacrdReady){
-//			// find a wave file
-//			bool bPlayDone = FALSE;
-//
-//			OSSemPend(SEM_nPlayIndex,0,&err);
-//			OSSemPend(SEM_szWaveFile,0,&err);
-//			strcpy(szWaveFile, gWavePlayList.szFilename[nPlayIndex]);
-//			err = OSSemPost(SEM_nPlayIndex);
-//			printf("Play Song:%s\r\n", szWaveFile);
-//
-//			if (!waveplay_start(szWaveFile)){
-//				printf("waveplay_start error\r\n");
-//				lcd_display("Play Error.\n\n");
-//				bSdacrdReady = FALSE;
-//			}
-//			err = OSSemPost(SEM_szWaveFile);
-//			update_status();
-//
-//			while(!bPlayDone && bSdacrdReady){
-//				bool bEndOfFile = FALSE;
-//				// play wave file
-//				if (!waveplay_execute(&bEndOfFile)){
-//					printf("waveplay_execute error\r\n");
-//					lcd_display("Play Error.\n\n");
-//					bSdacrdReady = FALSE;
-//				}
-//				// handle key event
-//				handle_key();
-//				if (bSdacrdReady && (bEndOfFile)){
-//					bool bNextSong = FALSE;
-//					bool bLastSong = FALSE;
-//
-//					if(bEndOfFile) bNextSong = TRUE;
-//					// check whether in REPEAT mode
-//					if (gWavePlay.bRepeatMode){
-//						bNextSong = FALSE;  // in repeat mode
-//						bLastSong = FALSE;
-//					}
-//					if (bNextSong){  // index update for next song
-//						OSSemPend(SEM_nPlayIndex,0,&err);
-//						nPlayIndex++;
-//						if (nPlayIndex >= gWavePlayList.nFileNum)
-//							nPlayIndex = 0;
-//						err = OSSemPost(SEM_nPlayIndex);
-//					}
-//					if (bLastSong){  // index update for last song
-//						OSSemPend(SEM_nPlayIndex,0,&err);
-//						nPlayIndex--;
-//						if (nPlayIndex < 0)
-//							nPlayIndex = gWavePlayList.nFileNum-1;
-//						err = OSSemPost(SEM_nPlayIndex);
-//					}
-//					bPlayDone = TRUE;
-//				}
-//			}  // while(!bPlayNextSong && bSdacrdReady)
-//		}  // while(bSdacrdReady)
-//
-//		err = OSSemPost(SEM_bSdacrdReady );
-//	}
-//}

@@ -1,9 +1,8 @@
 #ifndef __AUDIO_F_c__
 #define __AUDIO_F_c__
 
-#include "includes.h"
 #include "audio_f.h"
-#include "main.h"
+#include "includes.h"
 
 /////////////////////////////////////////////////////////////////
 /////////// Display config & function ///////////////////////////
@@ -175,7 +174,7 @@ int build_wave_play_list(FAT_HANDLE hFat){
 }
 
 /////////////////////////////////////////////////////////////////
-//// Function for wave playing /////////////////////////////////
+/////////////// Functions for wave playing //////////////////////
 /////////////////////////////////////////////////////////////////
 
 //Controleer het .wav bestand en speel het af
@@ -236,17 +235,17 @@ bool waveplay_start(int songnummer){
 
 //.wav bestand afspelen
 //Als er een fout optreed geef dan FALSE terug
-bool waveplay_execute(bool *bEOF,int songnummer){
+bool waveplay_execute(int songnummer){
     bool bSuccess = TRUE;
     bool bDataReady = FALSE;
 
     //Controlleer of de WAV file is afgelopen
     if (gWavePlay[songnummer].uWavePlayPos >= gWavePlay[songnummer].uWaveMaxPlayPos){
-        *bEOF = TRUE;
+        gWavePlay[songnummer].uWavePlayPos = Wave_GetWaveOffset(gWavePlay[songnummer].szBuf, WAVE_BUF_SIZE);
         return TRUE;
     }
 
-    *bEOF = FALSE;
+    //*bEOF = FALSE;
     while (!bDataReady && bSuccess){
         if (gWavePlay[songnummer].uWavePlayPos < gWavePlay[songnummer].uWaveReadPos){
             bDataReady = TRUE;
@@ -285,95 +284,15 @@ bool waveplay_execute(bool *bEOF,int songnummer){
     return bSuccess;
 }
 
-bool wave_play(bool *songs)
-{
-    //bekijk welke liedjes er afgespeel moeten worden
-    int songNumbersSize = 2;
-    int songNumbers[2] = {0,2};
-
-    int i;
-    for (i = 0; i < songNumbersSize; i++) {
-        bool bSuccess = TRUE;
-        bool bDataReady = FALSE;
-
-        //Controlleer of een van de wav files is afgelopen
-        if (gWavePlay[songNumbers[i]].uWavePlayPos >= gWavePlay[songNumbers[i]].uWaveMaxPlayPos){
-            gWavePlay[songNumbers[i]].uWavePlayPos = Wave_GetWaveOffset(gWavePlay[songNumbers[i]].szBuf, WAVE_BUF_SIZE);
-        }
-
-        while (!bDataReady && bSuccess){
-            if (gWavePlay[songNumbers[i]].uWavePlayPos < gWavePlay[songNumbers[i]].uWaveReadPos){
-                bDataReady = TRUE;
-            }else{
-                int read_size = WAVE_BUF_SIZE;
-                if (read_size > (gWavePlay[songNumbers[songNumbers[i]]].uWaveMaxPlayPos - gWavePlay[songNumbers[i]].uWavePlayPos))
-                    read_size = gWavePlay[songNumbers[i]].uWaveMaxPlayPos - gWavePlay[songNumbers[i]].uWavePlayPos;
-                bSuccess = Fat_FileRead(gWavePlay[songNumbers[i]].hFile, gWavePlay[songNumbers[i]].szBuf, read_size);
-                if (bSuccess)
-                    gWavePlay[songNumbers[i]].uWaveReadPos += read_size;
-                else{
-                    printf("[APP]sdcard read fail, read_pos:%ld, read_size:%d, max_play_pos:%ld !\r\n", gWavePlay[songNumbers[i]].uWaveReadPos, read_size, gWavePlay[songNumbers[i]].uWaveMaxPlayPos);
-                    return FALSE;
-                }
-
-            }
-        } // while
-    }
-
-    //Speel een short van de WAV file wanneer hij alle data heeft
-    //if (bDataReady && bSuccess){
-    	int play_size, play_size2;
-		short *pSample = (short *)(gWavePlay[songNumbers[1]].szBuf + gWavePlay[songNumbers[1]].uWavePlayPos%WAVE_BUF_SIZE);
-		short *pSample2 = (short *)(gWavePlay[songNumbers[0]].szBuf + gWavePlay[songNumbers[0]].uWavePlayPos%WAVE_BUF_SIZE);
-		//short *pSample = pSample1;
-		int j = 0;
-		play_size = gWavePlay[songNumbers[1]].uWaveReadPos - gWavePlay[songNumbers[1]].uWavePlayPos;
-		play_size = play_size/4*4;
-		play_size2 = gWavePlay[songNumbers[0]].uWaveReadPos - gWavePlay[songNumbers[0]].uWavePlayPos;
-		play_size2 = play_size/4*4;
-		while(j < play_size || j < play_size2){
-			if(AUDIO_DacFifoNotFull()){ // Als audio ready is (LIB functie)
-				short ch_right, ch_left;
-				ch_left = *pSample++ + *pSample2++;
-				ch_right = *pSample++ + *pSample2++;
-
-//				AUDIO_DacFifoSetData(ch_left, ch_right); // Speel geluid links en rechts
-//				ch_left = *pSample2++;
-//				ch_right = *pSample2++;
-
-				AUDIO_DacFifoSetData(ch_left, ch_right); // Speel geluid links en rechts
-				j+=4;
-			}
-		}
-		gWavePlay[songNumbers[1]].uWavePlayPos += play_size;
-		gWavePlay[songNumbers[0]].uWavePlayPos += play_size2;
-   // }
-
-    return TRUE;
-
-}
-
-
 /////////////////////////////////////////////////////////////////
 /////////// Routing for button handle ///////////////////////////
 /////////////////////////////////////////////////////////////////
 
-//
 void handle_key(){
     static bool bFirsTime2SetupVol = TRUE;
     alt_u8 button;
     bool bVolUp, bVolDown;
     int nHwVol;
-
-
-#ifdef SUPPORT_PLAY_MODE
-    bool bRepeat;
-    bRepeat = (IORD_ALTERA_AVALON_PIO_DATA(SW_BASE) & 0x01)?TRUE:FALSE;
-    if (bRepeat ^ repeatMode){
-        repeatMode = bRepeat;
-       // update_status();
-    }
-#endif
 
 #ifdef ENABLE_DEBOUNCE
     static alt_u32 next_active_time = 0;
@@ -388,7 +307,6 @@ void handle_key(){
     IOWR_ALTERA_AVALON_PIO_EDGE_CAP(KEY_BASE, 0); // clear flag
     bVolUp = (button & 0x04)?TRUE:FALSE;
     bVolDown = (button & 0x02)?TRUE:FALSE;
-
 
     // adjust volument
     if (bVolUp || bVolDown || bFirsTime2SetupVol){
@@ -405,7 +323,8 @@ void handle_key(){
                 nHwVol--;
             printf("volume down %d(%d-%d)\r\n", nHwVol, HW_MIN_VOL, HW_MAX_VOL);
         }
-        AUDIO_SetLineOutVol(nHwVol, nHwVol);
+        volume = nHwVol;
+        AUDIO_SetLineOutVol(volume, volume);
         //update_status();
     }
 
@@ -415,76 +334,6 @@ void handle_key(){
     }
 #endif
 
-}
-
-bool Fat_Test(FAT_HANDLE hFat, char *pDumpFile){
-    bool bSuccess;
-    int nCount = 0;
-    FAT_BROWSE_HANDLE hBrowse;
-    FILE_CONTEXT FileContext;
-
-    bSuccess = Fat_FileBrowseBegin(hFat, &hBrowse);
-    if (bSuccess){
-        while(Fat_FileBrowseNext(&hBrowse, &FileContext)){
-            if (FileContext.bLongFilename){
-                alt_u16 *pData16;
-                alt_u8 *pData8;
-                pData16 = (alt_u16 *)FileContext.szName;
-                pData8 = FileContext.szName;
-                printf("[%d]", nCount);
-                while(*pData16){
-                    if (*pData8)
-                        printf("%c", *pData8);
-                    pData8++;
-                    if (*pData8)
-                        printf("%c", *pData8);
-                    pData8++;
-                    //
-                    pData16++;
-                }
-                printf("\n");
-            }else{
-                printf("---[%d]%s\n", nCount, FileContext.szName);
-            }
-            nCount++;
-        }
-    }
-    if (bSuccess && pDumpFile && strlen(pDumpFile)){
-        FAT_FILE_HANDLE hFile;
-        hFile =  Fat_FileOpen(hFat, pDumpFile);
-        if (hFile){
-            char szRead[256];
-            int nReadSize, nFileSize, nTotalReadSize=0;
-            nFileSize = Fat_FileSize(hFile);
-            if (nReadSize > sizeof(szRead))
-                nReadSize = sizeof(szRead);
-            printf("%s dump:\n", pDumpFile);
-            while(bSuccess && nTotalReadSize < nFileSize){
-                nReadSize = sizeof(szRead);
-                if (nReadSize > (nFileSize - nTotalReadSize))
-                    nReadSize = (nFileSize - nTotalReadSize);
-                //
-                if (Fat_FileRead(hFile, szRead, nReadSize)){
-                    int i;
-                    for(i=0;i<nReadSize;i++){
-                        printf("%c", szRead[i]);
-                    }
-                    nTotalReadSize += nReadSize;
-                }else{
-                    bSuccess = FALSE;
-                    printf("\nFaied to read the file \"%s\"\n", pDumpFile);
-                }
-            } // while
-            if (bSuccess)
-                printf("\n");
-            Fat_FileClose(hFile);
-        }else{
-            bSuccess = FALSE;
-            printf("Cannot find the file \"%s\"\n", pDumpFile);
-        }
-    }
-
-    return bSuccess;
 }
 
 #endif
