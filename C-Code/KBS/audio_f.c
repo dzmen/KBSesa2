@@ -5,36 +5,6 @@
 #include "includes.h"
 
 /////////////////////////////////////////////////////////////////
-/////////// Display config & function ///////////////////////////
-/////////////////////////////////////////////////////////////////
-
-//Vernieuwd de tekst op het lcd scherm
-//De tekst is de naam van het audiobestand en het volumeniveau
-void update_status(int songnummer){
-#ifdef LCD_DISPLAY
-    char szText[64];
-    sprintf(szText, "\r%s\nVol:%d(%d-%d)\n", gWavePlayList.szFilename[songnummer], volume,
-        HW_MIN_VOL, HW_MAX_VOL);
-    lcd_display((szText));
-#endif
-}
-
-//Open het lcd scherm
-void lcd_open(void){
-#ifdef LCD_DISPLAY
-    LCD_Open();
-#endif
-}
-
-//Plaats een string op het lcd scherm
-void lcd_display(char *pText){
-#ifdef LCD_DISPLAY
-    LCD_Clear();
-    LCD_TextOut(pText);
-#endif
-}
-
-/////////////////////////////////////////////////////////////////
 /////////// Routing for detect SD-CARD //////////////////////////
 /////////////////////////////////////////////////////////////////
 
@@ -45,13 +15,13 @@ void wait_sdcard_insert(void){
     while(!SDLIB_Init()){
         if (bFirstTime2Detect){
             printf("Please insert SD card!\r\n");
-            lcd_display(("\rPlease insert\nSD card!\n"));
+            drawMessage("Please insert SD card!");
             bFirstTime2Detect = FALSE;
         }
         OSTimeDlyHMSM(0,0,0,100);
     } // while
     printf("Find SD card\r\n");
-    lcd_display(("\rSdcard read\nAwaiting input\n"));
+    drawMessage("Sdcard read. Awaiting input...");
 }
 
 /////////////////////////////////////////////////////////////////
@@ -241,7 +211,7 @@ bool waveplay_execute(int songnummer){
 
     //Controlleer of de WAV file is afgelopen
     if (gWavePlay[songnummer].uWavePlayPos >= gWavePlay[songnummer].uWaveMaxPlayPos){
-        gWavePlay[songnummer].uWavePlayPos = Wave_GetWaveOffset(gWavePlay[songnummer].szBuf, WAVE_BUF_SIZE);
+        waveplay_start(songnummer);
         return TRUE;
     }
 
@@ -325,7 +295,6 @@ void handle_key(){
         }
         volume = nHwVol;
         AUDIO_SetLineOutVol(volume, volume);
-        //update_status();
     }
 
 #ifdef ENABLE_DEBOUNCE

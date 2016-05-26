@@ -11,7 +11,6 @@
 #include ".\terasic_lib\terasic_includes.h"
 
 /* Touch Display config */
-
 #define FR_FRAME  (SDRAM_BASE + FRAME_WIDTH*FRAME_HEIGHT*4)
 #define FRAME_WIDTH  800
 #define FRAME_HEIGHT 480
@@ -24,7 +23,18 @@ VIP_FRAME_READER *pReader;
 
 /* Functie prototypes */
 void graphic_init();
-void drawbutton(int id);
+void drawButtonsGrey();
+void drawButtonsRandom(int songs);
+void drawRecord();
+void drawRecording();
+void drawPlay();
+void drawStop();
+void drawBlank();
+void drawMessage(char message[]);
+void drawSdcardBlank();
 int getButtonId(int x, int y);
+bool recordTouched(int x, int y);
+bool playTouched(int x, int y);
+int getTouched();
 
 #endif
