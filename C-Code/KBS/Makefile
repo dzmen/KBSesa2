@@ -147,19 +147,25 @@ C_SRCS += terasic_fat/FatInternal.c
 C_SRCS += terasic_lib/AUDIO.c
 C_SRCS += terasic_lib/I2C.c
 C_SRCS += terasic_lib/LCD.c
-C_SRCS += terasic_lib/LED.c
-C_SRCS += terasic_lib/SEG7.c
 C_SRCS += terasic_lib/WaveLib.c
-C_SRCS += terasic_lib/debug.c
 C_SRCS += terasic_sdcard/crc16.c
 C_SRCS += terasic_sdcard/crc7.c
 C_SRCS += terasic_sdcard/sd_hal.c
 C_SRCS += terasic_sdcard/sd_lib.c
 C_SRCS += terasic_sdcard/sd_protocol.c
 C_SRCS += main.c
+C_SRCS += graphic_lib/simple_graphics.c
+C_SRCS += graphic_lib/simple_text.c
+C_SRCS += graphic_lib/tahomabold_20.c
+C_SRCS += graphic_lib/tahomabold_32.c
+C_SRCS += graphic_lib/vip_fr.c
+C_SRCS += terasic_lib/I2C_core.c
+C_SRCS += terasic_lib/multi_touch2.c
+C_SRCS += terasic_lib/queue.c
+C_SRCS += graphic_f.c
 CXX_SRCS :=
 ASM_SRCS :=
-#C_SRCS += functions.c
+#C_SRCS += functions.h
 
 
 # Path to root of object file tree.
@@ -192,7 +198,7 @@ CRT0 :=
 SYS_LIB :=
 
 # Define path to the root of the BSP.
-BSP_ROOT_DIR := ../KBS_bsp/
+BSP_ROOT_DIR := ../import_for_kbs
 
 # List of application specific include directories, library directories and library names
 APP_INCLUDE_DIRS :=
