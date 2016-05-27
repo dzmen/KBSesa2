@@ -35,7 +35,7 @@ typedef struct{
     char szFilename[MAX_FILE_NUM][FILENAME_LEN];
 }WAVE_PLAY_LIST;
 
-static WAVE_PLAY_LIST gWavePlayList;
+static WAVE_PLAY_LIST gWavePlayList;//todo deze weg en nFileNum apart maken
 
 #define WAVE_BUF_SIZE  512  // do not chagne this constant (FIFO: 4*128 byte)
 typedef struct{

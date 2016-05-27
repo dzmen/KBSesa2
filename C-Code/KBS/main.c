@@ -8,10 +8,11 @@ int main(void)
 {
 	/* Semafoor init*/
 	SEM_bSdacrdReady = OSSemCreate(1);
+	SEM_recording = OSSemCreate(1);
 
 	/* APP init */
 	graphic_init();
-	if (!AUDIO_Init()){ //todo hier naar kijken
+	if (!AUDIO_Init()){
 		printf("Audio Init fail!\n");
 		drawMessage("Audio Init fail!");
 		OSTaskDel(OS_PRIO_SELF);
@@ -58,48 +59,93 @@ void TaskReadSD(void* pdata)
 void TaskKeyHandler(void * pdata)
 {
 	INT8U err;
-	int songNummer;
+	int songNummer = 111;
+	int count = 0;
 	printf("Task keyhandler start\n");
 
 	while(1)
 	{
-		//als bSdacrdReady FALSE is maken we TaskReadSD aan
 		if(!bSdacrdReady) OSTaskCreate(TaskReadSD, NULL, (void *)&TaskReadSDStack[TASK_STACKSIZE-1], TaskReadSD_PRIORITY);
-		else{
-			songNummer = getButtonId(mtc2->x1, mtc2->y1);
-			while(mtc2->TouchNum && bSdacrdReady && songNummer != 111) {
-				songNummer = getButtonId(mtc2->x1, mtc2->y1);
-				if(!waveplay_execute(songNummer)){
-					printf("stop playing\n");
-					bSdacrdReady = FALSE;
-					drawButtonsGrey();
+		else
+			//OSSemPend(SEM_recording,0,&err);
+			if(mtc2->TouchNum)songNummer = getButtonId(mtc2->x1, mtc2->y1);
+			if(songNummer < gWavePlayList.nFileNum && songNummer != 111){
+				waveplay_start(songNummer);
+				int ticks = 0;
+				while(mtc2->TouchNum && bSdacrdReady && songNummer != 111) {
+					songNummer = getButtonId(mtc2->x1, mtc2->y1);
+					if(!waveplay_execute(songNummer)){
+						printf("stop playing\n");
+						bSdacrdReady = FALSE;
+						drawButtonsGrey();
+					}
+					handle_key();
+					ticks++;
 				}
-				handle_key();
-			}
-			if(recordTouched(mtc2->x1, mtc2->y1) && mtc2->TouchNum){
 				if(busyRecording){
+					recordingPlaylist[count].songnummer = songNummer;
+					recordingPlaylist[count].playticks = ticks;
+					count++;
+				}
+				songNummer = 111;
+			}
+			//err = OSSemPost(SEM_recording);
+			if(recordTouched(mtc2->x1, mtc2->y1) && mtc2->TouchNum){
+				OSTimeDlyHMSM(0,0,0,50);
+				if(!busyRecording){
+					busyRecording = TRUE;
+					songRecording = FALSE;
+					int i;
+					for (i = 0; i < MAX_RECORDING; i++) {
+						recordingPlaylist[i].playticks = NULL;
+						recordingPlaylist[i].songnummer= NULL;
+					}
+					count = 0;
+					drawRecording();
+					drawBlank();
+				} else{
 					busyRecording = FALSE;
 					songRecording = TRUE;
 					drawRecord();
 					drawPlay();
-				}else{
-					busyRecording = TRUE;
-					songRecording = FALSE;
-					drawRecording();
-					drawBlank();
 				}
 			}
 			if(playTouched(mtc2->x1, mtc2->y1) && songRecording && mtc2->TouchNum){
-				if(playingRecording){
-					playingRecording = FALSE;
-					drawStop();
-				} else{
-					playingRecording = TRUE;
-					drawPlay();
+				if(!playingRecording){
+					OSTimeDlyHMSM(0,0,0,100);
+					//start task playing recording
+					OSTaskCreate(TaskPlayRecording, NULL, (void *)&TaskPlayRecordingStack[TASK_STACKSIZE-1], TaskPlayRecording_PRIORITY);
 				}
 			}
 			handle_key();
 			OSTimeDlyHMSM(0,0,0,50);
-		}
 	}
+}
+
+void TaskPlayRecording(void * pdata)
+{
+	printf("TaskPlayRecording start\n");
+	INT8U err;
+	playingRecording = TRUE;
+	drawStop();
+	int i;
+
+	mtc2->x1 = 0;
+	mtc2->y1 = 0;
+
+	//loopen todat stop wordt ingedrukt
+	while(playingRecording){
+		//todo afspelen maken
+		for (i = 0; i < MAX_RECORDING - 30; i++) {
+			printf("%d time: %d \n",recordingPlaylist[i].songnummer, recordingPlaylist[i].playticks);
+			if(playTouched(mtc2->x1, mtc2->y1)) playingRecording = FALSE;
+		}
+		OSTimeDlyHMSM(0,0,0,100);
+		playingRecording = FALSE;
+
+	}
+
+	drawPlay();
+	printf("TaskPlayRecording end\n");
+	OSTaskDel(OS_PRIO_SELF);
 }

@@ -8,19 +8,30 @@
 #define   TASK_STACKSIZE       2048
 OS_STK    TaskReadSDStack[TASK_STACKSIZE];
 OS_STK    TaskKeyHandlerStack[TASK_STACKSIZE];
+OS_STK    TaskPlayRecordingStack[TASK_STACKSIZE];
 
 /* Task Priorities definities*/
 #define TaskReadSD_PRIORITY      	4
-#define TaskKeyHandler_PRIORITY     5
+#define TaskKeyHandler_PRIORITY     8
+#define TaskPlayRecording_PRIORITY  6
 
 /* Semafoor definities*/
 OS_EVENT * SEM_bSdacrdReady;
+OS_EVENT * SEM_recording;
 
 /* Globale variabelen*/
 bool bSdacrdReady = FALSE;		//variabele die bij houdt of de sd kaart klaar is voor gebruik
+typedef struct{
+    int songnummer;
+    int playticks;
+}RECORDING_PLAYLIST;
+
+#define MAX_RECORDING   40
+static RECORDING_PLAYLIST recordingPlaylist[MAX_RECORDING];
 
 /* Functie prototypes */
 void TaskReadSD(void* pdata);
 void TaskKeyHandler(void* pdata);
+void TaskPlayRecording(void * pdata);
 
 #endif

@@ -26,6 +26,7 @@ void graphic_init(){
 
     //Dit moet na elke tekenfase gebeuren. Deze functie refreshed het scherm met de nieuwe informatie.
     VIPFR_ActiveDrawFrame(pReader);
+    mtc2->TouchNum = 0;
 }
 
 void drawButtonsGrey(){
@@ -43,7 +44,7 @@ void drawButtonsGrey(){
 
 void drawButtonsRandom(int songs){
     int songAmount = songs;
-    int array[5] = {RED_24,DARKORANGE_24,YELLOW_24,DARKGREEN_24,DARKBLUE_24};
+    int array[6] = {RED_24,DARKORANGE_24,YELLOW_24,DARKGREEN_24,DARKBLUE_24, DARKVIOLET_24};
     int color = 0;
     int id;
     for(id = 0; id < 18; id++){
@@ -56,7 +57,7 @@ void drawButtonsRandom(int songs){
         }
         if(songAmount) songAmount--;
         color++;
-        if(color > 5) color = 0;
+        if(color >= 6) color = 0;
     }
 }
 
