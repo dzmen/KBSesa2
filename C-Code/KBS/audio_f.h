@@ -4,7 +4,7 @@
 #include "custom_type.h"
 #include ".\terasic_lib\terasic_includes.h"
 
-/* Functie prototypes */
+// Functie prototypes
 void wait_sdcard_insert(void);
 bool is_supporrted_sample_rate(int sample_rate);
 int build_wave_play_list(FAT_HANDLE hFat);
@@ -13,31 +13,22 @@ bool waveplay_execute(int songnummer);
 void handle_key();
 bool Fat_Test(FAT_HANDLE hFat, char *pDumpFile);
 
-/* LCD Display config */
+// LCD Display config
 #define LCD_DISPLAY
 #define SUPPORT_PLAY_MODE
 #define xENABLE_DEBOUNCE
 
-/* Volume config */
+// Volume config
 #define HW_MAX_VOL     127
 #define HW_MIN_VOL     47
 #define HW_DEFAULT_VOL  120
 
-alt_u8 volume;
+static alt_u8 volume;
 
-/* Audio structure config */
-
-#define MAX_FILE_NUM    128
+// Audio structure config
 #define FILENAME_LEN    32
-
-typedef struct{
-    int nFileNum;
-    char szFilename[MAX_FILE_NUM][FILENAME_LEN];
-}WAVE_PLAY_LIST;
-
-static WAVE_PLAY_LIST gWavePlayList;//todo deze weg en nFileNum apart maken
-
 #define WAVE_BUF_SIZE  512  // do not chagne this constant (FIFO: 4*128 byte)
+
 typedef struct{
     FAT_FILE_HANDLE hFile;
     alt_u8          szBuf[WAVE_BUF_SIZE];  // one sector size of sd-card
@@ -50,11 +41,12 @@ typedef struct{
 
 }PLAYWAVE_CONTEXT;
 
-#define   MAX_SONGS 28
+#define MAX_SONGS 28
 static PLAYWAVE_CONTEXT gWavePlay[MAX_SONGS + 1];
 
-/* Overige variabelen */
+// Globale variabelen
 static FAT_HANDLE hFat;
+int songAmount;                 //aantal wav files op sd card
 bool songRecording = FALSE;     //bepaald of er een recording is
 bool playingRecording = FALSE;  //bepaald of er een recording aan het spelen is
 bool busyRecording = FALSE;     //bepaald of er een recoding opgenomen wordt.

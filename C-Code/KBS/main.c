@@ -3,14 +3,13 @@
 
 // UPLOAD COMMAND: nios2-download -g KBS.elf && nios2-terminal
 
-/* The main function creates two task and starts multi-tasking */
 int main(void)
 {
-	/* Semafoor init*/
-	SEM_bSdacrdReady = OSSemCreate(1);
+	// Semafoor init
+	SEM_sdCardReady = OSSemCreate(1);
 	SEM_recording = OSSemCreate(1);
 
-	/* APP init */
+	// APP init
 	graphic_init();
 	if (!AUDIO_Init()){
 		printf("Audio Init fail!\n");
@@ -18,19 +17,19 @@ int main(void)
 		OSTaskDel(OS_PRIO_SELF);
 	}
 
-	memset(&gWavePlay, 0, sizeof(gWavePlay));
+	//
 	memset(&gWavePlay[MAX_SONGS + 1], 0, sizeof(gWavePlay[MAX_SONGS + 1]));
+	memset(&recordingPlaylist[MAX_RECORDING], 0, sizeof(recordingPlaylist[MAX_RECORDING]));
 	volume = HW_DEFAULT_VOL;
-	//AUDIO_SetLineOutVol(volume, volume);
 
-	/* Task init*/
+	// Task init
 	OSTaskCreate(TaskKeyHandler, NULL, (void *)&TaskKeyHandlerStack[TASK_STACKSIZE-1], TaskKeyHandler_PRIORITY);
 
 	OSStart();
 	return 0;
 }
 
-/* Lees de sd kaart in*/
+//Lees de sd kaart in
 void TaskReadSD(void* pdata)
 {
 	printf("TaskReadSD created\n");
@@ -39,9 +38,10 @@ void TaskReadSD(void* pdata)
 	hFat = Fat_Mount(FAT_SD_CARD, 0);				//sd kaart mounten
 	if (hFat){
 		if (build_wave_play_list(hFat)){			//afspeellijst maken van alle .wav files
-			bSdacrdReady = TRUE;
-			drawButtonsRandom(gWavePlayList.nFileNum);
+			sdCardReady = TRUE;
+			drawButtonsRandom(songAmount);
 			drawRecord();
+			drawVolume(volume);
 		}else{
 			printf("There is no wave file in the root directory of SD card.\n");
 			drawMessage("No Wave Files.");
@@ -65,18 +65,18 @@ void TaskKeyHandler(void * pdata)
 
 	while(1)
 	{
-		if(!bSdacrdReady) OSTaskCreate(TaskReadSD, NULL, (void *)&TaskReadSDStack[TASK_STACKSIZE-1], TaskReadSD_PRIORITY);
-		else
-			//OSSemPend(SEM_recording,0,&err);
+		if(!sdCardReady) OSTaskCreate(TaskReadSD, NULL, (void *)&TaskReadSDStack[TASK_STACKSIZE-1], TaskReadSD_PRIORITY);
+		else{
+			OSSemPend(SEM_recording,0,&err);
 			if(mtc2->TouchNum)songNummer = getButtonId(mtc2->x1, mtc2->y1);
-			if(songNummer < gWavePlayList.nFileNum && songNummer != 111){
+			if(songNummer < songAmount && songNummer != 111){
 				waveplay_start(songNummer);
 				int ticks = 0;
-				while(mtc2->TouchNum && bSdacrdReady && songNummer != 111) {
+				while(mtc2->TouchNum && sdCardReady && songNummer != 111) {
 					songNummer = getButtonId(mtc2->x1, mtc2->y1);
 					if(!waveplay_execute(songNummer)){
 						printf("stop playing\n");
-						bSdacrdReady = FALSE;
+						sdCardReady = FALSE;
 						drawButtonsGrey();
 					}
 					handle_key();
@@ -89,7 +89,7 @@ void TaskKeyHandler(void * pdata)
 				}
 				songNummer = 111;
 			}
-			//err = OSSemPost(SEM_recording);
+			err = OSSemPost(SEM_recording);
 			if(recordTouched(mtc2->x1, mtc2->y1) && mtc2->TouchNum){
 				OSTimeDlyHMSM(0,0,0,50);
 				if(!busyRecording){
@@ -113,47 +113,45 @@ void TaskKeyHandler(void * pdata)
 			if(playTouched(mtc2->x1, mtc2->y1) && songRecording && mtc2->TouchNum){
 				if(!playingRecording){
 					OSTimeDlyHMSM(0,0,0,100);
+					OSSemPend(SEM_recording,0,&err);
 					//start task playing recording
 					OSTaskCreate(TaskPlayRecording, NULL, (void *)&TaskPlayRecordingStack[TASK_STACKSIZE-1], TaskPlayRecording_PRIORITY);
 				}
 			}
 			handle_key();
 			OSTimeDlyHMSM(0,0,0,50);
+		}
 	}
 }
 
+//Speelt de afspeellijst af
 void TaskPlayRecording(void * pdata)
 {
 	printf("TaskPlayRecording start\n");
 	INT8U err;
 	playingRecording = TRUE;
+
 	drawStop();
+	resetTouchCoordinates();
 
-	mtc2->x1 = 0;
-	mtc2->y1 = 0;
-
-	//loopen todat stop wordt ingedrukt
-	while(playingRecording){
-		int i;
-		for (i = 0; i < MAX_RECORDING - 30; i++) {
-			printf("Playing song: %d\n", recordingPlaylist[i].songnummer);
-			int j;
-			for (j = 0; j <= recordingPlaylist[i].playticks; j++) {
-				if(!waveplay_execute(recordingPlaylist[i].songnummer)){
-
-				}
-				handle_key();
-				if(playTouched(mtc2->x1, mtc2->y1)) playingRecording = FALSE;
+	int i;
+	for (i = 0; i < MAX_RECORDING; i++) { //todo nog kijken tot hoeveel is ingedrukt
+		printf("Playing song: %d\n", recordingPlaylist[i].songnummer);
+		int j;
+		for (j = 0; j <= recordingPlaylist[i].playticks; j++) {
+			//if delay else exe
+			if(!waveplay_execute(recordingPlaylist[i].songnummer)){
+				playingRecording = FALSE;
 			}
-//			printf("%d time: %d \n",recordingPlaylist[i].songnummer, recordingPlaylist[i].playticks);
+			handle_key();
 			if(playTouched(mtc2->x1, mtc2->y1)) playingRecording = FALSE;
 		}
-		OSTimeDlyHMSM(0,0,0,100);
-		playingRecording = FALSE;
-
+		if(playTouched(mtc2->x1, mtc2->y1)) playingRecording = FALSE;
 	}
+		playingRecording = FALSE;
 
 	drawPlay();
 	printf("TaskPlayRecording end\n");
+	err = OSSemPost(SEM_recording);
 	OSTaskDel(OS_PRIO_SELF);
 }

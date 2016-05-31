@@ -1,10 +1,3 @@
-/*
- * custom_type.c
- *
- *  Created on: 21 apr. 2016
- *      Author: danny
- */
-
 #ifndef CUSTOM_TYPE_
 #define CUSTOM_TYPE_
 

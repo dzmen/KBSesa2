@@ -15,6 +15,7 @@ void wait_sdcard_insert(void){
     while(!SDLIB_Init()){
         if (bFirstTime2Detect){
             printf("Please insert SD card!\r\n");
+            drawSdcardBlank();
             drawMessage("Please insert SD card!");
             bFirstTime2Detect = FALSE;
         }
@@ -58,7 +59,7 @@ int build_wave_play_list(FAT_HANDLE hFat){
     int nPos = 0;
     int length=0;
 
-    gWavePlayList.nFileNum = 0;
+    songAmount = 0;
     //checken of er bestanden zijn
     if (!Fat_FileBrowseBegin(hFat,&hFileBrowse)){
         printf("browse file fail.\n");
@@ -127,7 +128,6 @@ int build_wave_play_list(FAT_HANDLE hFat){
             if (is_supporrted_sample_rate(sample_rate) &&
                 Wave_GetChannelNum(szHeader, sizeof(szHeader))==2 &&
                 Wave_GetSampleBitNum(szHeader, sizeof(szHeader))==16){
-                    strcpy(gWavePlayList.szFilename[count],szWaveFilename);
                     strcpy(gWavePlay[count].szFilename,szWaveFilename);
                     if(!waveplay_start(count)){
 						gWavePlay[count].readOk = FALSE;
@@ -139,7 +139,7 @@ int build_wave_play_list(FAT_HANDLE hFat){
             }
         }
     } // while
-    gWavePlayList.nFileNum = count;
+    songAmount = count;
     return count;
 }
 
@@ -294,6 +294,7 @@ void handle_key(){
             printf("volume down %d(%d-%d)\r\n", nHwVol, HW_MIN_VOL, HW_MAX_VOL);
         }
         volume = nHwVol;
+        drawVolume(volume);
         AUDIO_SetLineOutVol(volume, volume);
     }
 

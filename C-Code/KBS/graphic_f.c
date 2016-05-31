@@ -1,3 +1,6 @@
+#ifndef __GRAPHIC_F_c__
+#define __GRAPHIC_F_c__
+
 #include "graphic_f.h"
 
 void graphic_init(){
@@ -14,16 +17,12 @@ void graphic_init(){
     }
 
     pReader =  VIPFR_Init(ALT_VIP_VFR_0_BASE, (void *)FR_FRAME, (void *)FR_FRAME, FRAME_WIDTH, FRAME_HEIGHT);
-
     //Activeer het scherm. Dit moet pas gebeuren als het scherm is ingesteld. Is maar 1 keer nodig.
     VIPFR_Go(pReader, TRUE);
     //Leeg het scherm (tekent box over het hele scherm)
     vid_clean_screen(pReader, BLACK_24);
-
     //Een teken functie. In graphic_lib/simple_graphics.c staan alle teken functies + uitleg
     drawButtonsGrey();
-    drawMessage("Please insert sd card.");
-
     //Dit moet na elke tekenfase gebeuren. Deze functie refreshed het scherm met de nieuwe informatie.
     VIPFR_ActiveDrawFrame(pReader);
     mtc2->TouchNum = 0;
@@ -74,15 +73,15 @@ void drawRecording(){
 }
 
 void drawPlay(){
-    vid_draw_round_corner_box (430, 420, 560, 460,5, DARKGREEN_24, DO_FILL, pReader);
+    vid_draw_round_corner_box (430, 420, 540, 460,5, DARKGREEN_24, DO_FILL, pReader);
     //vid_draw_triangle(triangle_struct* tri, pReader); //todo driehoek play button
-    vid_print_string_alpha(490, 425, BLACK_24, DARKGREEN_24, tahomabold_20, pReader, "PLAY");
+    vid_print_string_alpha(470, 425, BLACK_24, DARKGREEN_24, tahomabold_20, pReader, "PLAY");
 }
 
 void drawStop(){
-    vid_draw_round_corner_box (430, 420, 560, 460,5, DARKGREEN_24, DO_FILL, pReader);
-    //vid_draw_triangle(triangle_struct* tri, pReader); //todo blokje stop button
-    vid_print_string_alpha(490, 425, BLACK_24, DARKGREEN_24, tahomabold_20, pReader, "STOP");
+    vid_draw_round_corner_box (430, 420, 540, 460,5, DARKGREEN_24, DO_FILL, pReader);
+    vid_draw_round_corner_box (440, 430, 460, 450,5, RED_24, DO_FILL, pReader);
+    vid_print_string_alpha(470, 425, BLACK_24, DARKGREEN_24, tahomabold_20, pReader, "STOP");
 }
 
 void drawBlank(){
@@ -95,7 +94,13 @@ void drawMessage(char message[]){
 }
 
 void drawSdcardBlank(){
-    vid_draw_round_corner_box (130, 420, 600, 480, 5, BLACK_24, DO_FILL, pReader);
+    vid_draw_round_corner_box (100, 420, 900, 480, 5, BLACK_24, DO_FILL, pReader);
+}
+
+void drawVolume(alt_u8 volume){
+	char string[81];
+	sprintf(string, "VOL: %d", volume);
+    vid_print_string_alpha(600, 425, WHITE_24, BLACK_24, tahomabold_20, pReader, string);
 }
 
 int getButtonId(int x, int y){
@@ -126,25 +131,9 @@ bool playTouched(int x, int y){
     }
 }
 
-int getTouched(){
-    int X1, Y1, X2, Y2, X3, Y3, X4, Y4, X5, Y5,TouchNum;
-    if (mtc2->TouchNum >= 1){
-        switch(TouchNum)
-        {
-        case 5 :
-        	//printf("%d p5\n",getButtonId(X5,Y5));
-        case 4 :
-        	//printf("%d p4\n",getButtonId(X4,Y4));
-        case 3:
-        	//printf("%d p3\n",getButtonId(X3,Y3));
-        case 2:
-        	//printf("%d p2\n",getButtonId(X2,Y2));
-        case 1:
-        	//printf("%d p1\n",getButtonId(X1,Y1)); break;
-        default:break;
-        }
-    }
-    return 0;
+void resetTouchCoordinates(){
+    mtc2->x1 = 0;
+    mtc2->y1 = 0;
 }
 
-
+#endif
