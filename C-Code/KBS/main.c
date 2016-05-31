@@ -21,7 +21,7 @@ int main(void)
 	memset(&gWavePlay, 0, sizeof(gWavePlay));
 	memset(&gWavePlay[MAX_SONGS + 1], 0, sizeof(gWavePlay[MAX_SONGS + 1]));
 	volume = HW_DEFAULT_VOL;
-	AUDIO_SetLineOutVol(volume, volume);
+	//AUDIO_SetLineOutVol(volume, volume);
 
 	/* Task init*/
 	OSTaskCreate(TaskKeyHandler, NULL, (void *)&TaskKeyHandlerStack[TASK_STACKSIZE-1], TaskKeyHandler_PRIORITY);
@@ -128,16 +128,24 @@ void TaskPlayRecording(void * pdata)
 	INT8U err;
 	playingRecording = TRUE;
 	drawStop();
-	int i;
 
 	mtc2->x1 = 0;
 	mtc2->y1 = 0;
 
 	//loopen todat stop wordt ingedrukt
 	while(playingRecording){
-		//todo afspelen maken
+		int i;
 		for (i = 0; i < MAX_RECORDING - 30; i++) {
-			printf("%d time: %d \n",recordingPlaylist[i].songnummer, recordingPlaylist[i].playticks);
+			printf("Playing song: %d\n", recordingPlaylist[i].songnummer);
+			int j;
+			for (j = 0; j <= recordingPlaylist[i].playticks; j++) {
+				if(!waveplay_execute(recordingPlaylist[i].songnummer)){
+
+				}
+				handle_key();
+				if(playTouched(mtc2->x1, mtc2->y1)) playingRecording = FALSE;
+			}
+//			printf("%d time: %d \n",recordingPlaylist[i].songnummer, recordingPlaylist[i].playticks);
 			if(playTouched(mtc2->x1, mtc2->y1)) playingRecording = FALSE;
 		}
 		OSTimeDlyHMSM(0,0,0,100);
