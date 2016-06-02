@@ -23,12 +23,11 @@ bool Fat_Test(FAT_HANDLE hFat, char *pDumpFile);
 #define HW_MIN_VOL     47
 #define HW_DEFAULT_VOL  120
 
-static alt_u8 volume;
-
 // Audio structure config
 #define FILENAME_LEN    32
 #define WAVE_BUF_SIZE  512  // do not chagne this constant (FIFO: 4*128 byte)
 
+// Globale variabelen
 typedef struct{
     FAT_FILE_HANDLE hFile;
     alt_u8          szBuf[WAVE_BUF_SIZE];  // one sector size of sd-card
@@ -43,9 +42,8 @@ typedef struct{
 
 #define MAX_SONGS 28
 static PLAYWAVE_CONTEXT gWavePlay[MAX_SONGS + 1];
-
-// Globale variabelen
-static FAT_HANDLE hFat;
+FAT_HANDLE hFat;
+alt_u8 volume;
 int songAmount;                 //aantal wav files op sd card
 bool songRecording = FALSE;     //bepaald of er een recording is
 bool playingRecording = FALSE;  //bepaald of er een recording aan het spelen is

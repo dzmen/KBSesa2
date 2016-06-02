@@ -16,7 +16,6 @@ OS_STK    TaskPlayRecordingStack[TASK_STACKSIZE];
 #define TaskPlayRecording_PRIORITY  6
 
 // Semafoor definities
-OS_EVENT * SEM_sdCardReady;
 OS_EVENT * SEM_recording;
 
 // Functie prototypes
@@ -34,19 +33,6 @@ typedef struct{
 static RECORDING_PLAYLIST recordingPlaylist[MAX_RECORDING];
 bool sdCardReady = FALSE;		//variabele die bij houdt of de sd kaart klaar is voor gebruik
 
-// Globale variabelen getters en setters
-void set_sdCardReady(bool state){
-    INT8U err;
-    OSSemPend(SEM_sdCardReady,0,&err);
-    sdCardReady = state;
-    err = OSSemPost(SEM_sdCardReady);
-}
 
-bool get_sdCardReady(){
-    INT8U err;
-    OSSemPend(SEM_sdCardReady,0,&err);
-    err = OSSemPost(SEM_sdCardReady);
-    return sdCardReady;
-}
 
 #endif

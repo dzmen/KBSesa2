@@ -41,7 +41,7 @@ void drawButtonsGrey(){
     }
 }
 
-void drawButtonsRandom(int songs){
+void drawButtonsColor(int songs){
     int songAmount = songs;
     int array[6] = {RED_24,DARKORANGE_24,YELLOW_24,DARKGREEN_24,DARKBLUE_24, DARKVIOLET_24};
     int color = 0;
@@ -74,7 +74,15 @@ void drawRecording(){
 
 void drawPlay(){
     vid_draw_round_corner_box (430, 420, 540, 460,5, DARKGREEN_24, DO_FILL, pReader);
-    //vid_draw_triangle(triangle_struct* tri, pReader); //todo driehoek play button
+    triangle_struct tri;
+    tri.vertex_x[0] = 440;
+    tri.vertex_x[1] = 440;
+    tri.vertex_x[2] = 460;
+    tri.vertex_y[0] = 430;
+    tri.vertex_y[1] = 450;
+    tri.vertex_y[2] = 440;
+    tri.fill = DO_FILL;
+    vid_draw_triangle(&tri, pReader);
     vid_print_string_alpha(470, 425, BLACK_24, DARKGREEN_24, tahomabold_20, pReader, "PLAY");
 }
 
@@ -98,9 +106,14 @@ void drawSdcardBlank(){
 }
 
 void drawVolume(alt_u8 volume){
+    if(volume == 99) drawVolumeBlank();
 	char string[81];
-	sprintf(string, "VOL: %d", volume);
+	sprintf(string, "VOL: %u", volume);
     vid_print_string_alpha(600, 425, WHITE_24, BLACK_24, tahomabold_20, pReader, string);
+}
+
+void drawVolumeBlank(){
+	vid_draw_round_corner_box(600, 425, 800, 1000, 5, BLACK_24, DO_FILL, pReader);
 }
 
 int getButtonId(int x, int y){

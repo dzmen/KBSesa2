@@ -11,7 +11,7 @@
 // Functie prototypes
 void graphic_init();
 void drawButtonsGrey();
-void drawButtonsRandom(int songs);
+void drawButtonsColor(int songs);
 void drawRecord();
 void drawRecording();
 void drawPlay();
@@ -20,6 +20,7 @@ void drawBlank();
 void drawMessage(char message[]);
 void drawSdcardBlank();
 void drawVolume(alt_u8 volume);
+void drawVolumeBlank();
 int getButtonId(int x, int y);
 bool recordTouched(int x, int y);
 bool playTouched(int x, int y);
