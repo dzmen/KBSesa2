@@ -183,7 +183,7 @@ void TaskPlayRecording(void * pdata)
 			}
 		}
 		//stop met loopen als de stop knop is ingedrukt
-		if(playTouched(mtc2->x1, mtc2->y1) || recordingPlaylist[i].songnummer == 0) break;
+		if(playTouched(mtc2->x1, mtc2->y1) || recordingPlaylist[i].songnummer == NULL) break;
 	}
 	playingRecording = FALSE;
 	drawPlay();
