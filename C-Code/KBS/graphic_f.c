@@ -117,7 +117,6 @@ void drawVolumeBlank(){
 }
 
 int getButtonId(int x, int y){
-	//printf("%d x\n",x);
 	if(y > 25 && y < 130){
 		return (x-25)/130;
 	}else if(y > 155 && y < 260){

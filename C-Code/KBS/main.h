@@ -33,6 +33,4 @@ typedef struct{
 static RECORDING_PLAYLIST recordingPlaylist[MAX_RECORDING];
 bool sdCardReady = FALSE;		//variabele die bij houdt of de sd kaart klaar is voor gebruik
 
-
-
 #endif

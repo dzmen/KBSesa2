@@ -1,8 +1,6 @@
 #include "audio_f.c"
 #include "main.h"
 
-// UPLOAD COMMAND: nios2-download -g KBS.elf && nios2-terminal
-
 int main(void)
 {
 	// Semafoor init
@@ -31,7 +29,6 @@ int main(void)
 //Lees de sd kaart in
 void TaskReadSD(void* pdata)
 {
-	printf("TaskReadSD created\n");
 	wait_sdcard_insert();							//wacht totdat er een sd kaart is ingevoegd
 	drawSdcardBlank();
 	hFat = Fat_Mount(FAT_SD_CARD, 0);				//sd kaart mounten
@@ -49,8 +46,6 @@ void TaskReadSD(void* pdata)
 		printf("SD card mount fail.\n");
 		drawMessage("SD card mount fail.");
 	}
-
-	printf("TaskReadSD done\n");
 	OSTaskDel(OS_PRIO_SELF);
 }
 
@@ -61,7 +56,6 @@ void TaskKeyHandler(void * pdata)
 	int songNummer = 111;
 	int count = 0;
 	int pauseTicks = 0;
-	printf("Task keyhandler start\n");
 
 	while(1)
 	{
@@ -91,7 +85,6 @@ void TaskKeyHandler(void * pdata)
 					songNummer = getButtonId(mtc2->x1, mtc2->y1);
 					//muziek sample afspelen
 					if(!waveplay_execute(songNummer)){
-						printf("stop playing\n");
 						sdCardReady = FALSE;
 						drawButtonsGrey();
 					}
@@ -152,7 +145,6 @@ void TaskKeyHandler(void * pdata)
 //Speelt de afspeellijst af
 void TaskPlayRecording(void * pdata)
 {
-	printf("TaskPlayRecording start\n");
 	INT8U err;
 	playingRecording = TRUE;
 
@@ -164,7 +156,6 @@ void TaskPlayRecording(void * pdata)
 	for (i = 0; i < MAX_RECORDING; i++) {
 		//als er een pauze is hoeven we niet te printen of het muziekbestand te intitializeren
 		if(recordingPlaylist[i].songnummer != 111){
-			printf("Playing song: %d\n", recordingPlaylist[i].songnummer);
 			waveplay_start(recordingPlaylist[i].songnummer);
 		}
 
@@ -187,7 +178,6 @@ void TaskPlayRecording(void * pdata)
 	}
 	playingRecording = FALSE;
 	drawPlay();
-	printf("TaskPlayRecording end\n");
 	//delay als debounce
 	OSTimeDlyHMSM(0,0,0,50);
 	err = OSSemPost(SEM_recording);

@@ -85,10 +85,8 @@ int build_wave_play_list(FAT_HANDLE hFat){
 				pData16++;
 			}
 			szWaveFilename[nPos] = 0;
-			//printf("\n-- 1 Music Name:%s --\n",szWaveFilename);
 		}else{
 			strcpy(szWaveFilename,FileContext.szName);
-			//printf("\n-- 2 Music Name:%s --\n",FileContext.szName);
 		}
         //checken of de laatste 4 letters van de bestandsnaam overeenkomt met .wav
 		length= strlen(szWaveFilename);
@@ -110,8 +108,6 @@ int build_wave_play_list(FAT_HANDLE hFat){
             }
             printf("Read OK.\n");
 
-            //memset(szHeader,0,sizeof(szHeader));
-
             if (!Fat_FileRead(hFile, szHeader, sizeof(szHeader))){
                   printf("wave file read fail.\n");
                   continue;
@@ -121,9 +117,7 @@ int build_wave_play_list(FAT_HANDLE hFat){
 
             // check wave format
             sample_rate =  Wave_GetSampleRate(szHeader, sizeof(szHeader));
-            //printf("%i is de channel.\n", Wave_GetChannelNum(szHeader, sizeof(szHeader)));
-            //printf("%i is de sample rate.\n", sample_rate);
-            //printf("%i is de sample bit num.\n", Wave_GetSampleBitNum(szHeader, sizeof(szHeader)));
+			
             //als de sample rate, channelnummer en samplebitsize kloppen voegen we het bestand toe aan de playlist
             if (is_supporrted_sample_rate(sample_rate) &&
                 Wave_GetChannelNum(szHeader, sizeof(szHeader))==2 &&
@@ -176,9 +170,6 @@ bool waveplay_start(int songnummer){
 			gWavePlay[songnummer].uWavePlayPos = Wave_GetWaveOffset(gWavePlay[songnummer].szBuf, WAVE_BUF_SIZE);
 			gWavePlay[songnummer].uWaveMaxPlayPos = gWavePlay[songnummer].uWavePlayPos + Wave_GetDataByteSize(gWavePlay[songnummer].szBuf, WAVE_BUF_SIZE);
 			gWavePlay[songnummer].uWaveReadPos = WAVE_BUF_SIZE;
-			printf("%d - PlayPos\n", gWavePlay[songnummer].uWavePlayPos);
-			printf("%d - MaxPlayPos\n", gWavePlay[songnummer].uWaveMaxPlayPos);
-			printf("%d - ReadPos\n", gWavePlay[songnummer].uWaveReadPos);
 
 			// sample rate setten
 			AUDIO_InterfaceActive(FALSE);
@@ -215,7 +206,6 @@ bool waveplay_execute(int songnummer){
         return TRUE;
     }
 
-    //*bEOF = FALSE;
     while (!bDataReady && bSuccess){
         if (gWavePlay[songnummer].uWavePlayPos < gWavePlay[songnummer].uWaveReadPos){
             bDataReady = TRUE;
